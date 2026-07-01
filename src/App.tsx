@@ -1,14 +1,11 @@
-import { WidgetOptions } from "./index.widget";
-
+import type { WidgetOptions } from "./index.widget";
 
 interface AppProps {
-  options?: WidgetOptions;
+  options: WidgetOptions;
 }
 
 function App({ options }: AppProps) {
-  return (
-    <div>Hello</div>
-  );
+  return <div>Hello {options.name}</div>;
 }
 
 export default App;
