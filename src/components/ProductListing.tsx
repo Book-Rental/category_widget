@@ -31,16 +31,7 @@ const ProductListing = () => {
     }
     return (
         <div className="max-w-7xl mx-auto px-4 py-6">
-            <div
-            className="
-                grid
-                grid-cols-1
-                sm:grid-cols-2
-                md:grid-cols-3
-                lg:grid-cols-4
-                gap-6
-            "
-            >
+            <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
             {products.map((product) => (
                 <div key={product._id} className="flex justify-center">
                 <ProductCard
@@ -52,7 +43,7 @@ const ProductListing = () => {
                     priceText={`₹${product.rentalPricePerWeek} / Week`}
                     isAction
                 >
-                    <Button>Add to Cart</Button>
+                <Button>Add to Cart</Button>
                 </ProductCard>
                 </div>
             ))}
