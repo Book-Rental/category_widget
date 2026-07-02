@@ -5,7 +5,9 @@ interface AppProps {
 }
 
 function App({ options }: AppProps) {
-  return <div>Hello category{options.name}</div>;
+  return (
+     <div>Hello category{options.name}</div>
+  );
 }
 
 export default App;
