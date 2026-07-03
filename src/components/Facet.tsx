@@ -17,8 +17,8 @@ interface FacetProps {
   >;
 }
 
-const Facet = ({priceRange,
-  setPriceRange}: FacetProps) => {
+const Facet = ({ priceRange,
+  setPriceRange }: FacetProps) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   // const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   const [availability, setAvailability] = useState({
@@ -52,8 +52,8 @@ const Facet = ({priceRange,
   }
 
   const handlePriceRange = (value: [number, number]) => {
-  setPriceRange(value);
-};
+    setPriceRange(value);
+  };
 
   return (
     <div className="w-[250px] p-4">
@@ -93,6 +93,7 @@ const Facet = ({priceRange,
       <Rb_Text variant="h4" className="mt-4 mb-2">
         Price Range
       </Rb_Text>
+
 
       <PriceRangeSlider
         min={0}
