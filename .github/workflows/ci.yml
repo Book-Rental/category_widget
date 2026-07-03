@@ -1,61 +1,45 @@
-name: Build and Deploy to GitHub Pages
+name: React CI/CD Pipeline
 
 on:
   push:
     branches:
-      - '**'
+      - develop
+      - main
   pull_request:
     branches:
-      - '**'
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+      - develop
+      - main
 
 jobs:
   build:
+    name: Build React Application
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    strategy:
+      matrix:
+        node-version: [20.x]
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: npm
 
-      - run: npm ci
+      - name: Install Dependencies
+        run: npm ci
 
-      - run: npm run lint
+      - name: Run Lint
+        run: npm run lint
 
-      - run: npm run build
+      - name: Build Project Library
+        run: npm run build
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: dist
-
-  deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist
-          path: dist
-
-      - uses: actions/configure-pages@v5
-
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
-
-      - id: deployment
-        uses: actions/deploy-pages@v4
+      # NEW TRIGGER STEP: Fires only on a 'push' to develop or main branches
+      - name: Trigger Render Deployment
+        if: github.event_name == 'push' && success()
+        run: |
+          curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
