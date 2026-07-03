@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/productService";
-import { Button ,ProductCard , Pagination } from "rentbook";
+import { Rb_Button ,ProductCard , Pagination } from "rentbook";
 import ProductSort from "./ProductSort";
 import useDebounce from "../hooks/useDebounce";
 
@@ -65,7 +65,7 @@ console.log(priceRange);
                     priceText={`₹${product.rentalPricePerWeek} / Week`}
                     isAction
                 >
-                <Button>Add to Cart</Button>
+                <Rb_Button>Add to Cart</Rb_Button>
                 </ProductCard>
                 </div>
             ))}
