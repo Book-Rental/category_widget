@@ -6,6 +6,10 @@ interface ProductSortProps {
 }
 
 const sortOptions = [
+   {
+    label: "Popular",
+    value: "popular",
+  },
   {
     label: "Newest",
     value: "",
@@ -37,7 +41,6 @@ function ProductSort({ value,onChange,}: ProductSortProps) {
                 <Dropdown
                 options={sortOptions}
                 value={value}
-                placeholder="Popular"
                 onChange={onChange}
                 />
             </div>

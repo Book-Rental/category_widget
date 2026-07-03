@@ -5,7 +5,7 @@ import ProductListing from "../components/ProductListing";
 
 const CategoryPage = () => {
   const [showFilter, setShowFilter] = useState(false);
-
+ const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
   return (
     <>
       {/* Mobile Filter Button */}
@@ -21,12 +21,15 @@ const CategoryPage = () => {
       <div className="flex">
         {/* Desktop Filter */}
         <div className="hidden md:block w-[250px] shrink-0">
-          <Facet />
+           <Facet
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+          />
         </div>
 
         {/* Products */}
         <div className="flex-1 p-4">
-          <ProductListing />
+            <ProductListing priceRange={priceRange} />
         </div>
       </div>
 
@@ -45,7 +48,8 @@ const CategoryPage = () => {
               <button onClick={() => setShowFilter(false)}>✕</button>
             </div>
 
-            <Facet />
+            <Facet priceRange={priceRange}
+            setPriceRange={setPriceRange}/>
           </div>
         </>
       )}

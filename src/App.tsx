@@ -11,7 +11,6 @@ const queryClient = new QueryClient();
 function App({ options }: AppProps) {
   return (
     <>
-     {/* <div>Hello category{options.name}</div> */}
      <QueryClientProvider client={queryClient}>
       <CategoryPage></CategoryPage>
     </QueryClientProvider>

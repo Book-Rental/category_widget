@@ -3,11 +3,17 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/productService";
 import { Button ,ProductCard , Pagination } from "rentbook";
 import ProductSort from "./ProductSort";
+import useDebounce from "../hooks/useDebounce";
 
-const ProductListing = () => {
+interface ProductListingProps {
+  priceRange: [number, number];
+}
 
+const ProductListing = ({ priceRange }: ProductListingProps) => {
+console.log(priceRange);
+  const debouncedPriceRange = useDebounce(priceRange, 500);
     const [currentPage, setCurrentPage] = useState(1);
-    const [sortBy, setSortBy] = useState<string>("");
+    const [sortBy, setSortBy] = useState<string>("nameAToZ");
 
     const {
         data,
@@ -15,8 +21,8 @@ const ProductListing = () => {
         isError,
         error,
         } = useQuery({
-        queryKey: ["products", currentPage , sortBy],
-        queryFn: () => getProducts(currentPage , sortBy),
+        queryKey: ["products", currentPage , sortBy, debouncedPriceRange],
+        queryFn: () => getProducts(currentPage , sortBy, debouncedPriceRange),
     });
 
     const products = data?.products ?? [];
@@ -47,7 +53,7 @@ const ProductListing = () => {
                     setCurrentPage(1);
                 }}
             />
-            <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
             {products.map((product) => (
                 <div key={product._id} className="flex justify-center">
                 <ProductCard
