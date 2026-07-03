@@ -13,3 +13,11 @@ export interface Product {
   coverImage: string;
   images: ProductImage[];
 }
+
+export interface ProductResponse {
+  products: Product[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasMore: boolean;
+}

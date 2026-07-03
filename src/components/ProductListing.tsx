@@ -1,36 +1,52 @@
-import { useEffect, useState } from "react";
-import { Product } from "../types/product";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getProducts } from "../services/productService";
-import { Button ,ProductCard } from "rentbook";
+import { Button ,ProductCard , Pagination } from "rentbook";
+import ProductSort from "./ProductSort";
 
 const ProductListing = () => {
-    const [products, setProducts] = useState<Product[]>([]);
+
     const [currentPage, setCurrentPage] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [sortBy, setSortBy] = useState<string>("");
 
-    useEffect(() => {
-        const loadProducts = async () => {
-            try {
-                const data = await getProducts(currentPage);
-                setProducts(data);
-            } catch (error) {
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        loadProducts();
-    }, [currentPage]);
+    const {
+        data,
+        isLoading,
+        isError,
+        error,
+        } = useQuery({
+        queryKey: ["products", currentPage , sortBy],
+        queryFn: () => getProducts(currentPage , sortBy),
+    });
 
-    if (loading) {
+    const products = data?.products ?? [];
+    const totalPages = data?.totalPages ?? 1;
+
+    if (isLoading) {
         return (
-        <div className="flex justify-center items-center h-screen text-lg">
+            <div className="flex justify-center items-center h-screen text-lg">
             Loading...
+            </div>
+        );
+    }
+
+    if (isError) {
+        return (
+        <div className="flex justify-center items-center h-screen text-red-500">
+            {(error as Error).message}
         </div>
         );
     }
+
     return (
         <div className="max-w-7xl mx-auto px-4 py-6">
+            <ProductSort
+                value={sortBy}
+                onChange={(value) => {
+                    setSortBy(value);
+                    setCurrentPage(1);
+                }}
+            />
             <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 ">
             {products.map((product) => (
                 <div key={product._id} className="flex justify-center">
@@ -49,14 +65,12 @@ const ProductListing = () => {
             ))}
             </div>
 
-            <div className="flex justify-center gap-4 mt-8">
-            <Button onClick={() => setCurrentPage(1)}>
-                Page 1
-            </Button>
-
-            <Button onClick={() => setCurrentPage(2)}>
-                Page 2
-            </Button>
+            <div className="flex justify-center mt-8">
+                <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                />
             </div>
         </div>
     );
