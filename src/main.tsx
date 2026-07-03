@@ -9,10 +9,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App options={{
-        name: "sunayana",
-        containerElementId: 'PLP'
-      }} />
+      <App/>
     </QueryClientProvider>
   </StrictMode>,
 )

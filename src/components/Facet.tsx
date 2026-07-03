@@ -55,9 +55,6 @@ const Facet = ({priceRange,
   setPriceRange(value);
 };
 
-const handleClearAll = () => {
-  
-}
   return (
     <div className="w-[250px] p-4">
       <div className="flex justify-between items-center">

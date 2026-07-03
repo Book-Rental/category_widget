@@ -1,89 +1,58 @@
 import React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
-import { createRoot, Root as ReactRoot } from "react-dom/client";
+import "./index.css";
 
-export interface WidgetOptions {
+export interface CategoryWidgetOptions {
   containerElementId: string;
-  name?: string;
 }
 
 declare global {
   interface Window {
-    renderReactWidget: (config: string) => void;
-    unmountReactWidget: (id: string) => void;
+    renderCategoryWidget: (config: string) => void;
+    unmountCategoryWidget: (containerId: string) => void;
   }
 }
 
-const widgetRoots: Record<string, ReactRoot> = {};
+const roots: Record<string, Root> = {};
+const queryClient = new QueryClient();
 
-function Root({ options }: { options: WidgetOptions }) {
-  return <App options={options} />;
-}
-
-
-const getOptionsFromDataAttributes = (
-  el: HTMLElement
-): Partial<WidgetOptions> => {
-  return {
-    name: el.getAttribute("data-name") || "",
-  };
-};
-
-window.renderReactWidget = (config: string) => {
-  let parsedOptions: Partial<WidgetOptions> = {};
+window.renderCategoryWidget = (config: string) => {
+  let options: CategoryWidgetOptions;
 
   try {
-    parsedOptions = JSON.parse(config);
+    options = JSON.parse(config);
   } catch {
-    console.warn("Invalid JSON config, using data attributes");
+    console.error("Invalid widget config");
+    return;
   }
 
-  const containerId = parsedOptions.containerElementId || config;
-
-  const container = document.getElementById(containerId);
+  const container = document.getElementById(options.containerElementId);
 
   if (!container) {
-    console.error(`Container "${containerId}" not found`);
+    console.error(`Container '${options.containerElementId}' not found`);
     return;
   }
 
-  // Read data attributes
-  const dataOptions = getOptionsFromDataAttributes(container);
-
-  // JSON values override data attributes
-  const finalOptions: WidgetOptions = {
-    ...dataOptions,
-    ...parsedOptions,
-    containerElementId: containerId,
-  } as WidgetOptions;
-
-  // Validate name
-  if (!finalOptions.name) {
-    console.error("Missing required field: name");
-    return;
-  }
-
-  // Unmount previous widget if it exists
-  if (widgetRoots[containerId]) {
-    widgetRoots[containerId].unmount();
+  if (roots[options.containerElementId]) {
+    roots[options.containerElementId].unmount();
   }
 
   const root = createRoot(container);
 
   root.render(
     <React.StrictMode>
-      <Root options={finalOptions} />
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
     </React.StrictMode>
   );
 
-  widgetRoots[containerId] = root;
+  roots[options.containerElementId] = root;
 };
 
-window.unmountReactWidget = (containerElementId: string) => {
-  const root = widgetRoots[containerElementId];
-
-  if (root) {
-    root.unmount();
-    delete widgetRoots[containerElementId];
-  }
+window.unmountCategoryWidget = (containerId: string) => {
+  roots[containerId]?.unmount();
+  delete roots[containerId];
 };
