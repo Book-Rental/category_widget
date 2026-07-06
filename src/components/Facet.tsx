@@ -83,11 +83,6 @@ const Facet = () => {
         ))}
       </ul>
 
-      <div>
-        <Rb_Label>Author / Book Name</Rb_Label>
-        <Rb_Input type="text" placeholder="Searh for Author or Book Name"></Rb_Input>
-      </div>
-
       <Rb_Text variant="h4" className="mt-4 mb-2">
         Language
       </Rb_Text>
@@ -98,6 +93,11 @@ const Facet = () => {
         options={languageOptions}
         onChange={setLanguage}
       />
+
+      <div>
+        <Rb_Label>Author / Book Name</Rb_Label>
+        <Rb_Input type="text" placeholder="Searh for Author or Book Name"></Rb_Input>
+      </div>
 
       <Rb_Text variant="h4" className="mt-4 mb-2">
         Price Range
