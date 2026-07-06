@@ -1,19 +1,10 @@
-import ProductListing from "./components/ProductListing";
-import type { WidgetOptions } from "./index.widget";
-import 'rentbook/microfrontend.min.css'
+import CategoryPage from "./Pages/CategoryPage";
+import "rentbook/microfrontend.min.css";
 
-
-interface AppProps {
-  options: WidgetOptions;
-}
-
-const App: React.FC<AppProps> = ({ options }) => {
-    return (
-      <>
-        <div>Hello category {options.name}</div>
-        <ProductListing />
-      </>
-    );
+function App() {
+  return (
+      <CategoryPage />
+  );
 }
 
 export default App;

@@ -1,18 +1,48 @@
-import { Product } from "../types/product";
-
-const API_URL = "https://be-book-rental.onrender.com/api/book";
+import { ProductResponse } from "../types/product";
 
 export const getProducts = async (
-  page: number = 1
-): Promise<Product[]> => {
+  page: number,
+  sortBy: string,
+  priceRange: [number, number],
+  selectedCategories: string[],
+  language: string,
+   availability: {
+    rent: boolean;
+    sale: boolean;
+  }
+): Promise<ProductResponse> => {
+  const params = new URLSearchParams();
 
-  const response = await fetch(`${API_URL}?page=${page}`);
+  params.append("page", page.toString());
+  params.append("sortBy", sortBy);
+  params.append("minPrice", priceRange[0].toString());
+  params.append("maxPrice", priceRange[1].toString());
+
+  if (selectedCategories.length > 0) {
+    params.append("categoryID", selectedCategories.join(","));
+  }
+
+  if (language) {
+    params.append("language", language);
+  }
+
+  if (availability.rent) {
+    params.append("availableForRent", "true");
+  }
+
+  if (availability.sale) {
+    params.append("availableForSale", "true");
+  }
+
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/book?${params.toString()}`
+  );
 
   if (!response.ok) {
     throw new Error("Failed to fetch products");
   }
 
-  const data = await response.json();
+  const result = await response.json();
 
-  return data.data.products;
+  return result.data;
 };
