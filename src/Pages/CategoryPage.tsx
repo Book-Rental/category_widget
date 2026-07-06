@@ -30,21 +30,21 @@ const CategoryPage = () => {
       </div>
 
       {showFilter && (
-        <>
-          <div
-            className="absolute inset-0 bg-black/40 z-40 md:hidden"
-            onClick={() => setShowFilter(false)}
-          />
+  <>
+    <div
+      className="fixed inset-0 top-[72px] bg-black/40 z-40 md:hidden"
+      onClick={() => setShowFilter(false)}
+    />
 
-          <div className="absolute top-0 left-0 h-full w-72 bg-white z-50 overflow-y-auto md:hidden">
-            <div className="flex justify-end p-4 border-b">
-              <button onClick={() => setShowFilter(false)}>✕</button>
-            </div>
+    <div className="fixed top-[72px] left-0 h-[calc(100%-72px)] w-72 bg-white z-50 overflow-y-auto md:hidden">
+      <div className="flex justify-end p-4 border-b">
+        <button onClick={() => setShowFilter(false)}>✕</button>
+      </div>
 
-            <Facet />
-          </div>
-        </>
-      )}
+      <Facet />
+    </div>
+  </>
+)}
     </FilterProvider>
   );
 };

@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Checkbox, Dropdown, PriceRangeSlider, Rb_Input, Rb_Label, Rb_Text } from "rentbook";
 import { useFilter } from "../context/FilterContext";
+import { useEffect } from "react";
 
 const languageOptions = [
   { label: "English", value: "English" },
@@ -44,8 +45,16 @@ const Facet = () => {
     },
   });
 
+  useEffect(() => {
+    const event = new CustomEvent("widget-loading-status", { 
+      detail: isLoading 
+    });
+    window.dispatchEvent(event);
+  }, [isLoading]);
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Failed to load categories.</p>;
+
+    
 
   return (
     <div className="w-[250px] p-4">
