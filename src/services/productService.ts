@@ -1,41 +1,48 @@
 import { ProductResponse } from "../types/product";
 
-const API_URL = `${import.meta.env.VITE_API_URL}/api/book`;
-
 export const getProducts = async (
-    page: number = 1,
-    sortBy?: string,
-    priceRange?: [number, number]
+  page: number,
+  sortBy: string,
+  priceRange: [number, number],
+  selectedCategories: string[],
+  language: string,
+   availability: {
+    rent: boolean;
+    sale: boolean;
+  }
 ): Promise<ProductResponse> => {
+  const params = new URLSearchParams();
 
-    const params = new URLSearchParams({
-        page: page.toString(),
-    });
+  params.append("page", page.toString());
+  params.append("sortBy", sortBy);
+  params.append("minPrice", priceRange[0].toString());
+  params.append("maxPrice", priceRange[1].toString());
 
-    if (sortBy === "popular") {
-        params.append("isPopular", "true");
-    } else if (sortBy) {
-        params.append("sortBy", sortBy);
-    }
+  if (selectedCategories.length > 0) {
+    params.append("categoryID", selectedCategories.join(","));
+  }
 
-    if (priceRange) {
-        params.append("minPrice", priceRange[0].toString());
-        params.append("maxPrice", priceRange[1].toString());
-    }
+  if (language) {
+    params.append("language", language);
+  }
 
-    const response = await fetch(`${API_URL}?${params.toString()}`);
+  if (availability.rent) {
+    params.append("availableForRent", "true");
+  }
 
-    if (!response.ok) {
-        throw new Error("Failed to fetch products");
-    }
+  if (availability.sale) {
+    params.append("availableForSale", "true");
+  }
 
-    const data = await response.json();
+  const response = await fetch(
+    `${import.meta.env.VITE_API_URL}/api/book?${params.toString()}`
+  );
 
-    return {
-        products: data.data.products,
-        totalCount: data.data.totalCount,
-        currentPage: data.data.currentPage,
-        totalPages: data.data.totalPages,
-        hasMore: data.data.hasMore,
-    };
+  if (!response.ok) {
+    throw new Error("Failed to fetch products");
+  }
+
+  const result = await response.json();
+
+  return result.data;
 };

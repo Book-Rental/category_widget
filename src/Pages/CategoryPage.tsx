@@ -6,6 +6,13 @@ import ProductListing from "../components/ProductListing";
 const CategoryPage = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [language, setLanguage] = useState("");
+  const [availability, setAvailability] = useState({
+    rent: false,
+    sale: false,
+  });
+
   return (
     <>
       <div className="md:hidden p-4">
@@ -18,15 +25,26 @@ const CategoryPage = () => {
       </div>
 
       <div className="flex">
-        <div className="hidden md:block w-[250px] shrink-0">
+        <div className="hidden md:block w-[250px]">
           <Facet
             priceRange={priceRange}
             setPriceRange={setPriceRange}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            language={language}
+            setLanguage={setLanguage}
+            availability={availability}
+            setAvailability={setAvailability}
           />
         </div>
 
         <div className="flex-1 p-4">
-          <ProductListing priceRange={priceRange} />
+          <ProductListing
+            priceRange={priceRange}
+            selectedCategories={selectedCategories}
+            language={language}
+            availability={availability}
+          />
         </div>
       </div>
 
@@ -34,7 +52,7 @@ const CategoryPage = () => {
       {showFilter && (
         <>
           <div
-            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            className="fixed bg-black/40 z-40 md:hidden"
             onClick={() => setShowFilter(false)}
           />
 
@@ -43,8 +61,16 @@ const CategoryPage = () => {
               <button onClick={() => setShowFilter(false)}>✕</button>
             </div>
 
-            <Facet priceRange={priceRange}
-              setPriceRange={setPriceRange} />
+            <Facet
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+              selectedCategories={selectedCategories}
+              setSelectedCategories={setSelectedCategories}
+              language={language}
+              setLanguage={setLanguage}
+              availability={availability}
+              setAvailability={setAvailability}
+            />
           </div>
         </>
       )}

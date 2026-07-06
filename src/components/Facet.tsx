@@ -1,154 +1,162 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { Checkbox, PriceRangeSlider, Rb_Text } from "rentbook";
+import { Checkbox, PriceRangeSlider, Rb_Text, Dropdown } from "rentbook";
+
+const languageOptions = [
+  { label: "English", value: "English" },
+  { label: "Telugu", value: "Telugu" },
+  { label: "Hindi", value: "Hindi" },
+];
 
 interface Category {
   _id: string;
   name: string;
-  description: string;
-  isActive: boolean;
-  createdAt: string;
 }
 
 interface FacetProps {
   priceRange: [number, number];
-  setPriceRange: React.Dispatch<
-    React.SetStateAction<[number, number]>
+  setPriceRange: React.Dispatch<React.SetStateAction<[number, number]>>;
+
+  selectedCategories: string[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
+
+  language: string;
+  setLanguage: React.Dispatch<React.SetStateAction<string>>;
+
+  availability: {
+    rent: boolean;
+    sale: boolean;
+  };
+
+  setAvailability: React.Dispatch<
+    React.SetStateAction<{
+      rent: boolean;
+      sale: boolean;
+    }>
   >;
 }
 
-const Facet = ({ priceRange,
-  setPriceRange }: FacetProps) => {
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  // const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
-  const [availability, setAvailability] = useState({
-    sale: false,
-    rent: false,
-    unavailable: false,
-  });
-
+const Facet = ({
+  priceRange,
+  setPriceRange,
+  selectedCategories,
+  setSelectedCategories,
+  language,
+  setLanguage,
+  availability,
+  setAvailability,
+}: FacetProps) => {
   const {
-    data = [],
+    data: categories = [],
     isLoading,
     isError,
   } = useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: async () => {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/Category`);
-      if (!res.ok) {
-        throw new Error("Failed to fetch categories");
-      }
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/Category`
+      );
+
+      if (!res.ok) throw new Error("Failed to fetch categories");
+
       const result = await res.json();
-      return Array.isArray(result.data) ? result.data : [];
+      return result.data ?? [];
     },
   });
 
-  if (isLoading) {
-    return <p>Loading...</p>;
-  }
-
-  if (isError) {
-    return <p>Failed to load categories.</p>;
-  }
-
-  const handlePriceRange = (value: [number, number]) => {
-    setPriceRange(value);
+  const handleClearAll = () => {
+    setSelectedCategories([]);
+    setLanguage("");
+    setPriceRange([0, 5000]);
+     setAvailability({
+    rent: false,
+    sale: false,
+  });
   };
+
+  if (isLoading) return <p>Loading...</p>;
+
+  if (isError) return <p>Failed to load categories.</p>;
 
   return (
     <div className="w-[250px] p-4">
       <div className="flex justify-between items-center">
         <Rb_Text variant="h3">Filters</Rb_Text>
-        <Rb_Text variant="p" className="!text-[#230bda] cursor-pointer">
+
+        <Rb_Text
+          variant="p"
+          className="cursor-pointer !text-blue-600"
+          onClick={handleClearAll}
+        >
           Clear all
         </Rb_Text>
       </div>
 
-      <Rb_Text variant="h4" className="mt-2 mb-2">
+      <Rb_Text variant="h4" className="mt-4 mb-2">
         Categories
       </Rb_Text>
 
-      <ul className="h-[160px] overflow-y-auto list-none p-0">
-        {data.map((category) => (
-          <li
-            key={category._id}
-            className="flex items-center gap-2 mb-2"
-          >
+      <ul className="space-y-2 max-h-40 overflow-y-auto">
+        {categories.map((category) => (
+          <li key={category._id} className="flex items-center gap-2">
             <Checkbox
               checked={selectedCategories.includes(category._id)}
-              onChange={(checked: boolean) => {
+              onChange={(checked) =>
                 setSelectedCategories((prev) =>
                   checked
                     ? [...prev, category._id]
                     : prev.filter((id) => id !== category._id)
-                );
-              }}
+                )
+              }
             />
-
             <Rb_Text>{category.name}</Rb_Text>
           </li>
         ))}
       </ul>
 
       <Rb_Text variant="h4" className="mt-4 mb-2">
-        Price Range
+        Language
       </Rb_Text>
 
+      <Dropdown
+        placeholder="Select Language"
+        value={language}
+        options={languageOptions}
+        onChange={setLanguage}
+      />
+
+      <Rb_Text variant="h4" className="mt-4 mb-2">
+        Price Range
+      </Rb_Text>
 
       <PriceRangeSlider
         min={0}
         max={5000}
-        value={priceRange}
         step={100}
         currency="₹"
-        onChange={handlePriceRange}
+        value={priceRange}
+        onChange={setPriceRange}
       />
 
-      <Rb_Text variant="h4" className="mt-4 mb-2">
-        Availability
-      </Rb_Text>
-
-      <div className="space-y-2">
+       <div>
+        <Rb_Text variant="h4" className="mt-2 mb-2">Availability</Rb_Text>
         <div className="flex items-center gap-2">
           <Checkbox
             checked={availability.sale}
-            onChange={(checked: boolean) =>
-              setAvailability((prev) => ({
-                ...prev,
-                sale: checked,
-              }))
-            }
+            onChange={(checked) => setAvailability((prev) => ({ ...prev, sale: checked }))}
           />
           <Rb_Text>Available for Sale</Rb_Text>
         </div>
-
         <div className="flex items-center gap-2">
           <Checkbox
             checked={availability.rent}
-            onChange={(checked: boolean) =>
-              setAvailability((prev) => ({
-                ...prev,
-                rent: checked,
-              }))
-            }
+            onChange={(checked) => setAvailability((prev) => ({ ...prev, rent: checked }))}
           />
           <Rb_Text>Available for Rent</Rb_Text>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={availability.unavailable}
-            onChange={(checked: boolean) =>
-              setAvailability((prev) => ({
-                ...prev,
-                unavailable: checked,
-              }))
-            }
-          />
-          <Rb_Text>Not Available</Rb_Text>
-        </div>
       </div>
     </div>
+
+
   );
 };
 
