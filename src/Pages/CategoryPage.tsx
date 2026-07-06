@@ -32,11 +32,11 @@ const CategoryPage = () => {
       {showFilter && (
         <>
           <div
-            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            className="absolute inset-0 bg-black/40 z-40 md:hidden"
             onClick={() => setShowFilter(false)}
           />
 
-          <div className="fixed top-0 left-0 h-full w-72 bg-white z-50 overflow-y-auto md:hidden">
+          <div className="absolute top-0 left-0 h-full w-72 bg-white z-50 overflow-y-auto md:hidden">
             <div className="flex justify-end p-4 border-b">
               <button onClick={() => setShowFilter(false)}>✕</button>
             </div>
