@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { Checkbox, PriceRangeSlider, Rb_Text, Dropdown } from "rentbook";
+import { Checkbox, Dropdown, PriceRangeSlider, Rb_Input, Rb_Label, Rb_Text } from "rentbook";
+import { useFilter } from "../context/FilterContext";
 
 const languageOptions = [
   { label: "English", value: "English" },
@@ -12,39 +13,19 @@ interface Category {
   name: string;
 }
 
-interface FacetProps {
-  priceRange: [number, number];
-  setPriceRange: React.Dispatch<React.SetStateAction<[number, number]>>;
+const Facet = () => {
+  const {
+    priceRange,
+    setPriceRange,
+    selectedCategories,
+    setSelectedCategories,
+    language,
+    setLanguage,
+    availability,
+    setAvailability,
+    clearFilters,
+  } = useFilter();
 
-  selectedCategories: string[];
-  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
-
-  language: string;
-  setLanguage: React.Dispatch<React.SetStateAction<string>>;
-
-  availability: {
-    rent: boolean;
-    sale: boolean;
-  };
-
-  setAvailability: React.Dispatch<
-    React.SetStateAction<{
-      rent: boolean;
-      sale: boolean;
-    }>
-  >;
-}
-
-const Facet = ({
-  priceRange,
-  setPriceRange,
-  selectedCategories,
-  setSelectedCategories,
-  language,
-  setLanguage,
-  availability,
-  setAvailability,
-}: FacetProps) => {
   const {
     data: categories = [],
     isLoading,
@@ -63,18 +44,7 @@ const Facet = ({
     },
   });
 
-  const handleClearAll = () => {
-    setSelectedCategories([]);
-    setLanguage("");
-    setPriceRange([0, 5000]);
-     setAvailability({
-    rent: false,
-    sale: false,
-  });
-  };
-
   if (isLoading) return <p>Loading...</p>;
-
   if (isError) return <p>Failed to load categories.</p>;
 
   return (
@@ -85,7 +55,7 @@ const Facet = ({
         <Rb_Text
           variant="p"
           className="cursor-pointer !text-blue-600"
-          onClick={handleClearAll}
+          onClick={clearFilters}
         >
           Clear all
         </Rb_Text>
@@ -113,6 +83,11 @@ const Facet = ({
         ))}
       </ul>
 
+      <div>
+        <Rb_Label>Author / Book Name</Rb_Label>
+        <Rb_Input type="text" placeholder="Searh for Author or Book Name"></Rb_Input>
+      </div>
+
       <Rb_Text variant="h4" className="mt-4 mb-2">
         Language
       </Rb_Text>
@@ -137,26 +112,36 @@ const Facet = ({
         onChange={setPriceRange}
       />
 
-       <div>
-        <Rb_Text variant="h4" className="mt-2 mb-2">Availability</Rb_Text>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={availability.sale}
-            onChange={(checked) => setAvailability((prev) => ({ ...prev, sale: checked }))}
-          />
-          <Rb_Text>Available for Sale</Rb_Text>
-        </div>
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={availability.rent}
-            onChange={(checked) => setAvailability((prev) => ({ ...prev, rent: checked }))}
-          />
-          <Rb_Text>Available for Rent</Rb_Text>
-        </div>
+      <Rb_Text variant="h4" className="mt-4 mb-2">
+        Availability
+      </Rb_Text>
+
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={availability.sale}
+          onChange={(checked) =>
+            setAvailability((prev) => ({
+              ...prev,
+              sale: checked,
+            }))
+          }
+        />
+        <Rb_Text>Available for Sale</Rb_Text>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Checkbox
+          checked={availability.rent}
+          onChange={(checked) =>
+            setAvailability((prev) => ({
+              ...prev,
+              rent: checked,
+            }))
+          }
+        />
+        <Rb_Text>Available for Rent</Rb_Text>
       </div>
     </div>
-
-
   );
 };
 
