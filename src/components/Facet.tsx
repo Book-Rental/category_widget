@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { Checkbox, Dropdown, PriceRangeSlider, Rb_Input, Rb_Label, Rb_Text } from "rentbook";
+import { Checkbox, Dropdown, PriceRangeSlider, Rb_Input, Rb_Text } from "rentbook";
 import { useFilter } from "../context/FilterContext";
 import { useEffect } from "react";
+import { CiSearch } from "react-icons/ci";
 
 const languageOptions = [
   { label: "English", value: "English" },
@@ -25,6 +26,8 @@ const Facet = () => {
     availability,
     setAvailability,
     clearFilters,
+    nameOrAuthorSearch,
+    setNameOrAuthorSearch
   } = useFilter();
 
   const {
@@ -45,38 +48,48 @@ const Facet = () => {
     },
   });
 
+  const handleAuthorNameSearch = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setNameOrAuthorSearch(e.target.value);
+  };
+
   useEffect(() => {
-    const event = new CustomEvent("widget-loading-status", { 
-      detail: isLoading 
+    const event = new CustomEvent("widget-loading-status", {
+      detail: isLoading
     });
     window.dispatchEvent(event);
   }, [isLoading]);
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Failed to load categories.</p>;
 
-    
+
 
   return (
-    <div className="w-[250px] p-4">
-      <div className="flex justify-between items-center">
-        <Rb_Text variant="h3">Filters</Rb_Text>
+   <div className="w-[250px] p-4 flex flex-col gap-6">
 
-        <Rb_Text
-          variant="p"
-          className="cursor-pointer !text-blue-600"
-          onClick={clearFilters}
-        >
-          Clear all
-        </Rb_Text>
-      </div>
+  {/* Header */}
+  <div className="flex justify-between items-center">
+    <Rb_Text variant="h3">Filters</Rb_Text>
 
-      <Rb_Text variant="h4" className="mt-4 mb-2">
-        Categories
-      </Rb_Text>
+    <Rb_Text
+      variant="p"
+      className="text-blue-600 cursor-pointer"
+      onClick={clearFilters}
+    >
+      Clear all
+    </Rb_Text>
+  </div>
 
-      <ul className="space-y-2 max-h-40 overflow-y-auto">
+  <section className="flex flex-col gap-3">
+    <Rb_Text variant="h4">Categories</Rb_Text>
+
+     <ul className="max-h-48 overflow-y-auto space-y-2 pr-2">
         {categories.map((category) => (
-          <li key={category._id} className="flex items-center gap-2">
+          <li
+            key={category._id}
+            className="flex items-center gap-3"
+          >
             <Checkbox
               checked={selectedCategories.includes(category._id)}
               onChange={(checked) =>
@@ -91,66 +104,77 @@ const Facet = () => {
           </li>
         ))}
       </ul>
+  </section>
 
-      <Rb_Text variant="h4" className="mt-4 mb-2">
-        Language
-      </Rb_Text>
+  {/* Language */}
+  <section className="flex flex-col gap-3">
+    <Rb_Text variant="h4">Language</Rb_Text>
 
-      <Dropdown
-        placeholder="Select Language"
-        value={language}
-        options={languageOptions}
-        onChange={setLanguage}
+    <Dropdown
+      placeholder="Select Language"
+      value={language}
+      options={languageOptions}
+      onChange={setLanguage}
+    />
+  </section>
+
+  <section className="flex flex-col gap-3">
+  <Rb_Text variant="h4">Author / Book Name</Rb_Text>
+
+  <div className="relative">
+    <CiSearch
+      className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xl"
+    />
+
+    <Rb_Input
+      className="w-full pl-10 rounded-lg"
+      type="text"
+      placeholder="Search for Author or Book Name"
+      value={nameOrAuthorSearch}
+      onChange={handleAuthorNameSearch}
+      borderClass="border !border-[#d1d5db]"
+    />
+  </div>
+</section>
+
+  <section className="flex flex-col gap-4">
+    <Rb_Text variant="h4">Price Range</Rb_Text>
+
+    <PriceRangeSlider
+      min={0}
+      max={5000}
+      step={100}
+      currency="₹"
+      value={priceRange}
+      onChange={setPriceRange}
+    />
+  </section>
+
+  <section className="flex flex-col gap-3">
+    <Rb_Text variant="h4">Availability</Rb_Text>
+
+    <label className="flex items-center gap-3">
+      <Checkbox
+        checked={availability.sale}
+        onChange={(checked) =>
+          setAvailability((prev) => ({ ...prev, sale: checked }))
+        }
       />
+      <Rb_Text>Available for Sale</Rb_Text>
+    </label>
 
-      <div>
-        <Rb_Label>Author / Book Name</Rb_Label>
-        <Rb_Input type="text" placeholder="Searh for Author or Book Name"></Rb_Input>
-      </div>
-
-      <Rb_Text variant="h4" className="mt-4 mb-2">
-        Price Range
-      </Rb_Text>
-
-      <PriceRangeSlider
-        min={0}
-        max={5000}
-        step={100}
-        currency="₹"
-        value={priceRange}
-        onChange={setPriceRange}
+    <label className="flex items-center gap-3">
+      <Checkbox
+        checked={availability.rent}
+        onChange={(checked) =>
+          setAvailability((prev) => ({ ...prev, rent: checked }))
+        }
       />
+      <Rb_Text>Available for Rent</Rb_Text>
+    </label>
+  </section>
 
-      <Rb_Text variant="h4" className="mt-4 mb-2">
-        Availability
-      </Rb_Text>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={availability.sale}
-          onChange={(checked) =>
-            setAvailability((prev) => ({
-              ...prev,
-              sale: checked,
-            }))
-          }
-        />
-        <Rb_Text>Available for Sale</Rb_Text>
-      </div>
-
-      <div className="flex items-center gap-2">
-        <Checkbox
-          checked={availability.rent}
-          onChange={(checked) =>
-            setAvailability((prev) => ({
-              ...prev,
-              rent: checked,
-            }))
-          }
-        />
-        <Rb_Text>Available for Rent</Rb_Text>
-      </div>
-    </div>
+</div>
   );
 };
 

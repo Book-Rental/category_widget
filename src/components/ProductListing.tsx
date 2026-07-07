@@ -24,6 +24,7 @@ const ProductListing = () => {
     selectedCategories,
     language,
     availability,
+    nameOrAuthorSearch
   } = useFilter();
 
   const debouncedPriceRange = useDebounce(priceRange, 500);
@@ -48,6 +49,7 @@ const ProductListing = () => {
       selectedCategories,
       language,
       availability,
+      nameOrAuthorSearch
     ],
     queryFn: () =>
       getProducts(
@@ -56,7 +58,8 @@ const ProductListing = () => {
         debouncedPriceRange,
         selectedCategories,
         language,
-        availability
+        availability,
+        nameOrAuthorSearch
       ),
   });
 
