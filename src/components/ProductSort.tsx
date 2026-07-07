@@ -3,10 +3,11 @@ import { Dropdown } from "rentbook";
 interface ProductSortProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
 const sortOptions = [
-   {
+  {
     label: "Popular",
     value: "popular",
   },
@@ -32,21 +33,27 @@ const sortOptions = [
   },
 ];
 
-function ProductSort({ value,onChange,}: ProductSortProps) {
+function ProductSort({
+  value,
+  onChange,
+  disabled = false,
+}: ProductSortProps) {
+  return (
+    <div className="flex items-center gap-2">
+      <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+        Sort By
+      </span>
 
-    return (
-        <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-700">Sort By</span>
-            <div className="w-36">
-                <Dropdown
-                options={sortOptions}
-                value={value}
-                onChange={onChange}
-                />
-            </div>
-        </div>
-    );
-
+      <div className="w-full sm:w-36">
+        <Dropdown
+          options={sortOptions}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default ProductSort;

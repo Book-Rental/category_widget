@@ -9,7 +9,8 @@ export const getProducts = async (
    availability: {
     rent: boolean;
     sale: boolean;
-  }
+  },
+  nameOrAuthorSearch: string
 ): Promise<ProductResponse> => {
   const params = new URLSearchParams();
 
@@ -32,6 +33,10 @@ export const getProducts = async (
 
   if (availability.sale) {
     params.append("availableForSale", "true");
+  }
+
+  if(nameOrAuthorSearch) {
+    params.append("name", nameOrAuthorSearch)
   }
 
   const response = await fetch(
