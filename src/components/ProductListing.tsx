@@ -31,7 +31,7 @@ const ProductListing = () => {
       setSortBy("popular");
     }
   }, []);
-  
+
   const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "products",

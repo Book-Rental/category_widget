@@ -47,7 +47,10 @@ export const FilterProvider = ({
     sale: false,
   });
 
-  const [nameOrAuthorSearch, setNameOrAuthorSearch] = useState("");
+  const [nameOrAuthorSearch, setNameOrAuthorSearch] = useState(() => {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("categories") || "";
+});
 
   const clearFilters = () => {
     setPriceRange([0, 5000]);
