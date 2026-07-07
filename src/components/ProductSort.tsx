@@ -39,7 +39,7 @@ function ProductSort({
   disabled = false,
 }: ProductSortProps) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between sm:justify-end gap-2">
       <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
         Sort By
       </span>
