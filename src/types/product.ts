@@ -23,5 +23,6 @@ export interface ProductResponse {
   totalCount: number;
   currentPage: number;
   totalPages: number;
+  pageSize: number;
   hasMore: boolean;
 }

@@ -25,12 +25,12 @@ const CategoryPage = () => {
         </button>
       </div>
 
-      <div className="flex">
-        <div className="hidden md:block w-[250px]">
+      <div className="flex h-full">
+        <div className="hidden md:block w-[250px] border-r border-gray-200">
           <Facet />
         </div>
 
-        <div className="flex-1 p-4">
+        <div className="flex-1 p-4 flex">
           <ProductListing />
         </div>
       </div>
