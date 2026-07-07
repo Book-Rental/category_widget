@@ -1,23 +1,14 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Dropdown,
   Pagination,
   ProductCard,
-  Rb_Button,
 } from "rentbook";
 import ProductSort from "./ProductSort";
 import { getProducts } from "../services/productService";
 import useDebounce from "../hooks/useDebounce";
 import { useFilter } from "../context/FilterContext";
 import ProductActions from "./ProductActions";
-
-const durationOptions = [
-  { label: "7 Day", value: "7" },
-  { label: "15 Days", value: "15" },
-  { label: "20 Days", value: "20" },
-  { label: "30 Days", value: "30" },
-];
 
 const ProductListing = () => {
   const {
@@ -32,15 +23,6 @@ const ProductListing = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("nameAToZ");
-
-  const [selectedDuration, setSelectedDuration] = useState<
-    Record<string, string>
-  >({});
-
-  const [showDuration, setShowDuration] = useState<
-    Record<string, boolean>
-  >({});
-
   const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "products",
