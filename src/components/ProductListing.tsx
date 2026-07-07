@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Pagination,
@@ -23,6 +23,15 @@ const ProductListing = () => {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("nameAToZ");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("isPopular") === "true") {
+      setSortBy("popular");
+    }
+  }, []);
+  
   const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "products",
