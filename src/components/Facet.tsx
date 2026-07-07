@@ -60,7 +60,7 @@ const Facet = () => {
     });
     window.dispatchEvent(event);
   }, [isLoading]);
-  if (isLoading) return <p>Loading...</p>;
+  // if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Failed to load categories.</p>;
 
 

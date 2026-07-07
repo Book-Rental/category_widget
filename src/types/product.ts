@@ -9,9 +9,13 @@ export interface Product {
   name: string;
   description: string;
   author: string;
-  rentalPricePerWeek: number;
   coverImage: string;
   images: ProductImage[];
+  purchasePrice: number;
+  rentalPricePerDay: number;
+  rentalPricePerWeek: number;
+  rentalPricePerMonth: number;
+  securityDeposit: number;
 }
 
 export interface ProductResponse {

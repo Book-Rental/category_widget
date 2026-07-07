@@ -10,6 +10,7 @@ import ProductSort from "./ProductSort";
 import { getProducts } from "../services/productService";
 import useDebounce from "../hooks/useDebounce";
 import { useFilter } from "../context/FilterContext";
+import ProductActions from "./ProductActions";
 
 const durationOptions = [
   { label: "7 Day", value: "7" },
@@ -40,7 +41,7 @@ const ProductListing = () => {
     Record<string, boolean>
   >({});
 
-  const { data, isLoading, isError, error } = useQuery({
+  const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "products",
       currentPage,
@@ -79,77 +80,59 @@ const ProductListing = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6">
-      <ProductSort
-        value={sortBy}
-        onChange={(value) => {
-          setSortBy(value);
-          setCurrentPage(1);
-        }}
-      />
+      <div className="flex justify-end mb-6 relative z-50">
+        <div className="relative z-50 w-40">
+          <ProductSort
+            value={sortBy}
+            onChange={(value) => {
+              setSortBy(value);
+              setCurrentPage(1);
+            }}
+            disabled={isLoading || isFetching || !products.length}
+          />
+        </div>
+      </div>
 
-      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-6">
-        {products.map((product) => (
-          <ProductCard
-            key={product._id}
-            imageUrl={
-              product.coverImage || "https://picsum.photos/250/350"
-            }
-            title={product.name}
-            author={product.author}
-            priceText={`₹${product.rentalPricePerWeek} / Week`}
-            isAction
-          >
-            {showDuration[product._id] ? (
-              <div className="flex items-center gap-2">
-                <div className="flex-1">
-                  <Dropdown
-                    placeholder="Select Days"
-                    value={selectedDuration[product._id] || "7"}
-                    options={durationOptions}
-                    onChange={(value) =>
-                      setSelectedDuration((prev) => ({
-                        ...prev,
-                        [product._id]: value,
-                      }))
-                    }
-                  />
-                </div>
-
-                <button
-                  className="text-red-500 font-bold"
-                  onClick={() =>
-                    setShowDuration((prev) => ({
-                      ...prev,
-                      [product._id]: false,
-                    }))
-                  }
-                >
-                  ✕
-                </button>
-              </div>
-            ) : (
-              <Rb_Button
-                onClick={() =>
-                  setShowDuration((prev) => ({
-                    ...prev,
-                    [product._id]: true,
-                  }))
+      {(isLoading || isFetching) ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
+        </div>
+      ) : products.length === 0 ? (
+        <div className="flex justify-center items-center h-64">
+          <p className="text-gray-500 text-lg">
+            No products found.
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                imageUrl={
+                  product.coverImage ||
+                  "https://picsum.photos/250/350"
                 }
+                title={product.name}
+                author={product.author}
+                rating={4.5}
+                priceText={`₹${product.rentalPricePerWeek} / Week`}
+                isAction
               >
-                Add to Cart
-              </Rb_Button>
-            )}
-          </ProductCard>
-        ))}
-      </div>
+                <ProductActions product={product} />
+              </ProductCard>
+            ))}
+          </div>
 
-      <div className="flex justify-center mt-8">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={setCurrentPage}
-        />
-      </div>
+          <div className="flex justify-center mt-8">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };
