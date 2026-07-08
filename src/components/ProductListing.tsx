@@ -54,7 +54,7 @@ const ProductListing = () => {
   if (isError) return <div>{(error as Error).message}</div>;
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 py-6 flex flex-col">
+    <div className="max-w-7xl mx-auto w-full px-4 py-6 flex flex-col ">
 
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-gray-600">
@@ -69,7 +69,7 @@ const ProductListing = () => {
           results
         </p>
 
-        <div className="w-40">
+        {/* <div className="w-40"></div>   */}
           <ProductSort
             value={sortBy}
             onChange={(value) => {
@@ -78,23 +78,23 @@ const ProductListing = () => {
             }}
             disabled={isLoading || isFetching || !products.length}
           />
-        </div>        
+              
       </div>
 
       <div className="flex-1 flex">
         {(isFetching || isLoading) ? (
-          <div className="flex min-h-[450px] w-full flex-col items-center justify-center gap-4">
+          <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
             <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>            
           </div>
         ) : products.length === 0 ? (
-          <div className="flex min-h-[450px] w-full flex-col items-center justify-center gap-4">
+          <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
             <p className="text-lg text-gray-500">
               No products found.
             </p>
           </div>
         ) : (
           <div className="w-full">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
               {products.map((product) => (
                 <ProductCard
                   key={product._id}
