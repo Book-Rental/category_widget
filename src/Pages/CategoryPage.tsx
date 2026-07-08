@@ -25,7 +25,7 @@ const CategoryPage = () => {
         </button>
       </div>
 
-      <div className="flex h-full">
+      <div className="flex h-full items-start">
         <div className="hidden md:block w-[250px] border-r border-gray-200">
           <Facet />
         </div>

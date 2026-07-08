@@ -44,7 +44,7 @@ function ProductSort({
         Sort By
       </span>
 
-      <div className="w-full sm:w-36">
+      <div className="w-full sm:min-w-[180px] sm:w-auto">
         <Dropdown
           options={sortOptions}
           value={value}

@@ -3,6 +3,7 @@ import { Dropdown, Modal, ModalBody, ModalHeader, ModalFooter, Rb_Button, Rb_Ico
 import { FiHeart } from "react-icons/fi";
 import { Product } from "../types/product";
 import { toast } from "react-toastify";
+import WishlistModal from "./WishlistModal";
 
 
 interface ProductActionsProps {
@@ -11,6 +12,7 @@ interface ProductActionsProps {
 
 function ProductActions({ product }: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [actionType, setActionType] = useState<"rent" | "purchase" | "">("");
   const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
@@ -66,6 +68,7 @@ function ProductActions({ product }: ProductActionsProps) {
         <button
           type="button"
           className="ml-3 hover:text-red-500 transition-colors"
+          onClick={() => setIsWishlistOpen(true)}
         >
           <Rb_Icon
             icon={FiHeart}
@@ -146,6 +149,11 @@ function ProductActions({ product }: ProductActionsProps) {
           </div>
         </ModalFooter>
       </Modal>
+      <WishlistModal
+        isOpen={isWishlistOpen}
+        onClose={() => setIsWishlistOpen(false)}
+        product={product}
+      />
     </>
   );
 }
