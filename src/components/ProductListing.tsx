@@ -54,7 +54,7 @@ const ProductListing = () => {
   if (isError) return <div>{(error as Error).message}</div>;
 
   const redirectToPdp = (id:string) => {
-    window.history.pushState({}, '', `/books?${id}`)
+    window.history.pushState({}, '', `/books/${id}`)
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
 
