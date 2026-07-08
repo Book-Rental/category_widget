@@ -53,6 +53,11 @@ const ProductListing = () => {
   
   if (isError) return <div>{(error as Error).message}</div>;
 
+  const redirectToPdp = (id:string) => {
+    window.history.pushState({}, '', `/books?${id}`)
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  }
+
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-6 flex flex-col ">
 
@@ -103,7 +108,7 @@ const ProductListing = () => {
                   author={product.author}
                   rating={4.5}
                   priceText={`₹${product.rentalPricePerWeek} / Week`}
-                  isAction
+                  onProductClick={() => redirectToPdp(product._id)}
                 >
                   <ProductActions product={product} />
                 </ProductCard>
@@ -119,8 +124,8 @@ const ProductListing = () => {
             </div>
           </div>
         )}
+        
       </div>
-
     </div>
   );
 };
