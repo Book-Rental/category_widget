@@ -1,4 +1,4 @@
-import { Dropdown } from "rentbook";
+import { Dropdown } from "@rentbook/rentbook-ui-lib";
 
 interface ProductSortProps {
   value: string;
