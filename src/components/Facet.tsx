@@ -1,8 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { Checkbox, Dropdown, PriceRangeSlider, Rb_Input, Rb_Text } from "rentbook";
+
 import { useFilter } from "../context/FilterContext";
 import { useEffect } from "react";
 import { CiSearch } from "react-icons/ci";
+import { Rb_Text, Checkbox, Dropdown, Rb_Input, PriceRangeSlider } from "@rentbook/rentbook-ui-lib";
 
 const languageOptions = [
   { label: "English", value: "English" },

@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Pagination, ProductCard } from "rentbook";
 import ProductSort from "./ProductSort";
 import { getProducts } from "../services/productService";
 import useDebounce from "../hooks/useDebounce";
 import { useFilter } from "../context/FilterContext";
 import ProductActions from "./ProductActions";
+import { ProductCard, Pagination } from "@rentbook/rentbook-ui-lib";
 
-const ProductListing = () => {
+interface ProductListingProps {
+  userId: string;
+}
+
+const ProductListing = ({ userId }: ProductListingProps) => {
   const { priceRange, selectedCategories, language, availability, nameOrAuthorSearch } = useFilter();
   const debouncedPriceRange = useDebounce(priceRange, 500);
   const [currentPage, setCurrentPage] = useState(1);
@@ -110,7 +114,7 @@ const ProductListing = () => {
                   priceText={`₹${product.rentalPricePerWeek} / Week`}
                   onProductClick={() => redirectToPdp(product._id)}
                 >
-                  <ProductActions product={product} />
+                  <ProductActions product={product}  userId={userId}/>
                 </ProductCard>
               ))}
             </div>

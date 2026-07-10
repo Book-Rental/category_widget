@@ -4,7 +4,11 @@ import Facet from "../components/Facet";
 import ProductListing from "../components/ProductListing";
 import { FilterProvider } from "../context/FilterContext";
 
-const CategoryPage = () => {
+interface CategoryPageProps {
+  userId: string;
+}
+
+const CategoryPage = ({ userId }: CategoryPageProps) => {
   const [showFilter, setShowFilter] = useState(false);
   useEffect(() => {
     const close = () => setShowFilter(false);
@@ -12,7 +16,7 @@ const CategoryPage = () => {
     return () => window.removeEventListener("close-filter-drawer", close);
   }, []);
   return (
-    <FilterProvider>
+    <FilterProvider >
       <div className="md:hidden p-4">
         <button
           onClick={() => {
@@ -31,7 +35,7 @@ const CategoryPage = () => {
         </div>
 
         <div className="flex-1 p-4 flex">
-          <ProductListing />
+          <ProductListing  userId={userId}/>
         </div>
       </div>
 

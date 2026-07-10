@@ -1,22 +1,23 @@
 import { useState } from "react";
-import { Dropdown, Modal, ModalBody, ModalHeader, ModalFooter, Rb_Button, Rb_Icon, Rb_Radio } from "rentbook";
 import { FiHeart } from "react-icons/fi";
 import { Product } from "../types/product";
 import { toast } from "react-toastify";
 import WishlistModal from "./WishlistModal";
-
+import { Rb_Button, Rb_Icon, Modal, ModalHeader, ModalBody, Rb_Radio, Dropdown, ModalFooter } from "@rentbook/rentbook-ui-lib";
 
 interface ProductActionsProps {
   product: Product;
+  userId: string
 }
 
-function ProductActions({ product }: ProductActionsProps) {
+function ProductActions({ product, userId }: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [selectedDuration, setSelectedDuration] = useState("");
   const [actionType, setActionType] = useState<"rent" | "purchase" | "">("");
   const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
   const isProceedDisabled = actionType === "" ? true : actionType === "rent" ? !selectedDuration : false;
+  const isLoggedIn = !!userId;
 
   const rentalOptions = [
     {
@@ -50,32 +51,34 @@ function ProductActions({ product }: ProductActionsProps) {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <Rb_Button
-            onClick={() => {
-              if (addedType) {
-                console.log("Navigate to Cart");
-                return;
-              }
-              setIsModalOpen(true);
-            }}
-          >
-            {addedType ? "Go to Cart" : "Add to Cart"}
-          </Rb_Button>
-        </div>
+        {isLoggedIn && (
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <Rb_Button
+                onClick={() => {
+                  if (addedType) {
+                    console.log("Navigate to Cart");
+                    return;
+                  }
+                  setIsModalOpen(true);
+                }}
+              >
+                {addedType ? "Go to Cart" : "Add to Cart"}
+              </Rb_Button>
+            </div>
 
-        <button
-          type="button"
-          className="ml-3 hover:text-red-500 transition-colors"
-          onClick={() => setIsWishlistOpen(true)}
-        >
-          <Rb_Icon
-            icon={FiHeart}
-            size={22}
-          />
-        </button>
-      </div>
+            <button
+              type="button"
+              className="ml-3 hover:text-red-500 transition-colors"
+              onClick={() => setIsWishlistOpen(true)}
+            >
+              <Rb_Icon
+                icon={FiHeart}
+                size={22}
+              />
+            </button>
+          </div>
+        )}
 
       <Modal
         isOpen={isModalOpen}
@@ -153,6 +156,7 @@ function ProductActions({ product }: ProductActionsProps) {
         isOpen={isWishlistOpen}
         onClose={() => setIsWishlistOpen(false)}
         product={product}
+        userId={userId}
       />
     </>
   );

@@ -1,146 +1,185 @@
 import { useEffect, useState } from "react";
-import {
-  Modal,
-  ModalHeader,
-  ModalBody,
-  Dropdown,
-  Rb_Button,
-  Rb_Input,
-} from "rentbook";
 import { toast } from "react-toastify";
 import { Product } from "../types/product";
+import { useWishlistMutations } from "../hooks/useWishlistMutations";
+import { FiArrowLeft } from "react-icons/fi";
+import { useWishlistNames } from "../hooks/useWishlistNames";
+import { Modal, ModalHeader, ModalBody, Dropdown, Rb_Button, Rb_Input } from "@rentbook/rentbook-ui-lib";
 
 interface WishlistModalProps {
   isOpen: boolean;
   onClose: () => void;
   product: Product;
+  userId: string
 }
 
-function WishlistModal({
-  isOpen,
-  onClose,
-  product,
-}: WishlistModalProps) {
-  // Temporary local wishlists
-  const [wishlists, setWishlists] = useState([
-    {
-      label: "Programming Books",
-      value: "programming",
-    },
-    {
-      label: "Favorites",
-      value: "favorites",
-    },
-    {
-      label: "Weekend Reads",
-      value: "weekend",
-    },
-  ]);
+function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) {
+  const { data } = useWishlistNames( userId, isOpen );
+  const {
+    addBookMutation,
+    createWishlistMutation,
+  } = useWishlistMutations( userId );
 
-  const [newWishlist, setNewWishlist] = useState("");
+  const wishlistOptions =
+  data?.data.map((wishlist) => ({
+    label: wishlist.name,
+    value: wishlist._id,
+  })) ?? [];
+
   const [selectedWishlist, setSelectedWishlist] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [newWishlist, setNewWishlist] = useState("");
 
   useEffect(() => {
     if (!isOpen) {
+      setIsCreating(false);
       setNewWishlist("");
       setSelectedWishlist("");
     }
   }, [isOpen]);
 
-  const handleCreateWishlist = () => {
-    if (!newWishlist.trim()) {
-      toast.error("Please enter wishlist name.");
-      return;
+   const handleAdd = async (
+    wishlistId: string,
+    wishlistName: string
+    ) => {
+    try {
+        await addBookMutation.mutateAsync({
+        wishlistId,
+        bookId: product._id,
+        });
+
+        toast.success(
+        `"${product.name}" added to "${wishlistName}".`
+        );
+
+        onClose();
+    } catch (error) {
+        toast.error(
+        error instanceof Error
+            ? error.message
+            : "Failed to add to wishlist."
+        );
     }
-
-    const value = newWishlist.toLowerCase().replace(/\s+/g, "-");
-
-    setWishlists((prev) => [
-      ...prev,
-      {
-        label: newWishlist,
-        value,
-      },
-    ]);
-
-    toast.success(
-      `"${newWishlist}" created and "${product.name}" added successfully.`
-    );
-
-    onClose();
   };
 
-  const handleAddToWishlist = () => {
-    if (!selectedWishlist) {
-      toast.error("Please select a wishlist.");
-      return;
+  const handleCreate = async () => {
+    if (!newWishlist.trim()) {
+        toast.error("Please enter wishlist name.");
+        return;
     }
 
-    const wishlist = wishlists.find(
-      (item) => item.value === selectedWishlist
-    );
+    try {
+        const result = await createWishlistMutation.mutateAsync({
+            name: newWishlist.trim(),
+        });
 
-    toast.success(
-      `"${product.name}" added to "${wishlist?.label}".`
-    );
+        await addBookMutation.mutateAsync({
+        wishlistId: result.data._id,
+        bookId: product._id,
+        });
 
-    onClose();
+        toast.success(
+        `"${product.name}" added to "${newWishlist}".`
+        );
+        onClose();
+    } 
+    catch (error) {
+        toast.error(
+        error instanceof Error
+            ? error.message
+            : "Failed to create wishlist."
+        );
+    }
   };
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-    >
+    <Modal isOpen={isOpen} onClose={onClose}>
       <ModalHeader onClose={onClose}>
-        Save to Wishlist
+        {isCreating
+        ? "Create New Wishlist"
+        : "Add to Wishlist"}
       </ModalHeader>
 
       <ModalBody>
+        {!isCreating ? (
+            <div className="flex flex-col gap-4">
 
-        <div className="flex flex-col gap-8">
-          <div className="flex flex-col gap-3">
+                <Dropdown
+                placeholder="Select Wishlist"
+                options={wishlistOptions}
+                value={selectedWishlist}
+                onChange={setSelectedWishlist}
+                />
+              
+                <button
+                    type="button"
+                    onClick={() => setIsCreating(true)}
+                    className="self-start font-medium"
+                >
+                    + Create New Wishlist
+                </button>
 
-            <h3 className="font-semibold text-lg"> Create New Wishlist </h3>
-            <Rb_Input
-              placeholder="Wishlist Name"
-              value={newWishlist}
-              onChange={(e) =>
-                setNewWishlist(e.target.value)
-              }
-            />
-            <Rb_Button onClick={handleCreateWishlist} >
-              Create Wishlist
-            </Rb_Button>
-          </div>
+                <div className="mt-4 flex justify-end gap-3">
+                    <Rb_Button
+                        disabled={ !selectedWishlist || addBookMutation.isPending}
+                        onClick={() => {
+                            const wishlist = data?.data.find(
+                                (w) => w._id === selectedWishlist
+                            );
+                            if (!wishlist) return;
+                            handleAdd(
+                                wishlist._id,
+                                wishlist.name
+                            );
+                        }}
+                        >
+                        { addBookMutation.isPending ? "Adding..." : "Add to Wishlist" }
+                    </Rb_Button>
+                </div>
 
+            </div>
+        ) : (
+            <div className="flex flex-col gap-6">
+                <div className="space-y-2">
+                        <label className="text-sm font-medium text-gray-700">
+                            Wishlist Name
+                        </label>
+                        <Rb_Input
+                            placeholder="Enter wishlist name"
+                            value={newWishlist}
+                            onChange={(e) => setNewWishlist(e.target.value)}
+                            borderClass="border border-gray-300 rounded-lg"
+                        />
+                </div>
+                <div className="flex items-center justify-between mt-4">
+                    <button
+                        type="button"
+                        onClick={() => {
+                        setIsCreating(false);
+                        setNewWishlist("");
+                        }}
+                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                    >
+                        <FiArrowLeft size={18} />
+                         Add to existed 
+                    </button>
+                    <Rb_Button 
+                    disabled={
+                        !newWishlist.trim() ||
+                        createWishlistMutation.isPending ||
+                        addBookMutation.isPending
+                    }
+                    onClick={handleCreate}
+                    > 
+                        {createWishlistMutation.isPending ||
+                        addBookMutation.isPending
+                        ? "Creating..."
+                        : "Create & Add"}
+                    </Rb_Button>
+                </div>
 
-          <div className="flex items-center gap-4">
-            <hr className="flex-1" />
-            <span className="text-gray-500">
-              OR
-            </span>
-            <hr className="flex-1" />
-          </div>
-
-
-          <div className="flex flex-col gap-3">
-
-            <h3 className="font-semibold text-lg"> Add to Existing Wishlist </h3>
-            <Dropdown
-              placeholder="Select Wishlist"
-              options={wishlists}
-              value={selectedWishlist}
-              onChange={setSelectedWishlist}
-            />
-            <Rb_Button
-              onClick={handleAddToWishlist}
-            >
-              Add To Wishlist
-            </Rb_Button>
-
-          </div>          
-        </div>
+            </div>
+        )}
       </ModalBody>
     </Modal>
   );
