@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
 import { Product } from "../types/product";
 import { toast } from "react-toastify";
@@ -20,23 +20,47 @@ function ProductActions({ product, userId }: ProductActionsProps) {
   const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
   const isProceedDisabled = actionType === "" ? true : actionType === "rent" ? !selectedDuration : false;
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-  // const isLoggedIn = !!userId;
 
   const isLoggedIn = window.HOST_USER_INFO ?? false;
 
-  let isWishlisted = false;
-  let wishlistId: string | undefined;
+  const [wishlists, setWishlists] = useState<Record<string, string[]>>(
+    window.HOST_WISHLISTS ?? {}
+  );
 
-  if (isLoggedIn) {
-    const wishlists = window.HOST_WISHLISTS ?? {};
-    console.log(wishlists)
-    console.log("product._id", product._id)
-    wishlistId = Object.keys(wishlists).find((id) =>
-      wishlists[id].includes(product._id),
+  useEffect(() => {
+    const handleWishlistStateChanged = (
+      event: Event
+    ) => {
+      const customEvent = event as CustomEvent<Record<string, string[]>>;
+
+      setWishlists(customEvent.detail);
+    };
+
+    window.addEventListener(
+      "wishlist-state-changed",
+      handleWishlistStateChanged
     );
 
-    isWishlisted = !!wishlistId;
-  }
+    return () => {
+      window.removeEventListener(
+        "wishlist-state-changed",
+        handleWishlistStateChanged
+      );
+    };
+  }, []);
+
+  let wishlistId: string | undefined;
+
+  const isWishlisted =
+    isLoggedIn &&
+    !!Object.keys(wishlists).find((id) => {
+      if (wishlists[id].includes(product._id)) {
+        wishlistId = id;
+        return true;
+      }
+
+      return false;
+    });
   const rentalOptions = [
     {
       label: `1 Day - ₹${product.rentalPricePerDay}`,
@@ -88,6 +112,7 @@ function ProductActions({ product, userId }: ProductActionsProps) {
       if (!response.ok) {
         throw new Error("Failed to delete book");
       }
+
       return response.json();
     },
 
@@ -122,7 +147,7 @@ function ProductActions({ product, userId }: ProductActionsProps) {
             <Rb_Button
               onClick={() => {
                 if (addedType) {
-                  console.log("Navigate to Cart");
+                
                   return;
                 }
                 setIsModalOpen(true);
