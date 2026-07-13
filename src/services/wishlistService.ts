@@ -39,7 +39,7 @@ export const addBookToWishlist = async (
   if (!response.ok) {
     throw new Error(result.message);
   }
-
+  window.dispatchEvent(new CustomEvent("wishlist-refresh"));
   return result;
 };
 
