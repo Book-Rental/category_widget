@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
 import { Product } from "../types/product";
-import { toast } from "react-toastify";
 import WishlistModal from "./WishlistModal";
-import { Rb_Button, Rb_Icon, Modal, ModalHeader, ModalBody, Rb_Radio, Dropdown, ModalFooter } from "@rentbook/rentbook-ui-lib";
+import { Modal, ModalBody, ModalFooter, ModalHeader, Rb_Button, Rb_Icon } from "@rentbook/rentbook-ui-lib";
 import { AiFillHeart } from "react-icons/ai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import AddToCartModal from "./AddToCartModal";
+import { addToCart } from "../services/cartService";
+import { AddToCartPayload } from "../types/cart";
+import { showToast } from "../utils/toast";
+
 
 interface ProductActionsProps {
   product: Product;
@@ -15,17 +19,11 @@ interface ProductActionsProps {
 function ProductActions({ product, userId }: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [selectedDuration, setSelectedDuration] = useState("");
-  const [actionType, setActionType] = useState<"rent" | "purchase" | "">("");
   const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
-  const isProceedDisabled = actionType === "" ? true : actionType === "rent" ? !selectedDuration : false;
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
-
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const isLoggedIn = window.HOST_USER_INFO ?? false;
-
-  const [wishlists, setWishlists] = useState<Record<string, string[]>>(
-    window.HOST_WISHLISTS ?? {}
-  );
+  const [wishlists, setWishlists] = useState<Record<string, string[]>>( window.HOST_WISHLISTS ?? {});
 
   useEffect(() => {
     const handleWishlistStateChanged = (
@@ -61,35 +59,25 @@ function ProductActions({ product, userId }: ProductActionsProps) {
 
       return false;
     });
-  const rentalOptions = [
-    {
-      label: `1 Day - ₹${product.rentalPricePerDay}`,
-      value: "day",
-    },
-    {
-      label: `1 Week - ₹${product.rentalPricePerWeek}`,
-      value: "week",
-    },
-    {
-      label: `1 Month - ₹${product.rentalPricePerMonth}`,
-      value: "month",
-    },
-  ];
 
-  const handleProceed = () => {
-    if (!actionType) return;
-    setAddedType(actionType);
+    const handleAddToCart = async (payload: AddToCartPayload) => {
+      setIsAddingToCart(true);
 
-    toast.success(
-      actionType === "rent"
-        ? "Book added to rental cart."
-        : "Book added to cart."
-    );
-
-    setIsModalOpen(false);
-    setActionType("");
-    setSelectedDuration("");
-  };
+      try {
+        await addToCart(payload);
+        showToast("Book added to rental cart.", "success");
+        setAddedType("rent");
+      } catch (error) {
+        showToast(
+          error instanceof Error
+            ? error.message
+            : "Failed to add book to cart.",
+          "error"
+        );
+      } finally {
+        setIsAddingToCart(false);
+      }
+    };
 
 
   const queryClient = useQueryClient();
@@ -124,11 +112,11 @@ function ProductActions({ product, userId }: ProductActionsProps) {
 
 
       setIsRemoveModalOpen(false);
-      toast.success("Book removed from wishlist.");
+      showToast("Book removed from wishlist.", "success");
     },
 
     onError: () => {
-      toast.error("Failed to remove book.");
+      showToast("Failed to remove book.", "success");
     },
   });
 
@@ -145,104 +133,37 @@ function ProductActions({ product, userId }: ProductActionsProps) {
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Rb_Button
+              disabled={isAddingToCart}
               onClick={() => {
-                if (addedType) {
-                
+                if (addedType || isAddingToCart) {
                   return;
                 }
                 setIsModalOpen(true);
               }}
             >
-              {addedType ? "Go to Cart" : "Add to Cart"}
+              {isAddingToCart ? "Adding..." : addedType ? "Go to Cart" : "Add to Cart"}
             </Rb_Button>
           </div>
-          {isLoggedIn && <button
-            type="button"
-            className="ml-3 hover:text-red-500 transition-colors"
-            onClick={() => handleWishlist()}
-          >
-            {isWishlisted ? (
-              <Rb_Icon icon={AiFillHeart} color="red" size={22} />
-            ) : (
-              <Rb_Icon icon={FiHeart} size={22} />
-            )}
-          </button>}
-
+            {isLoggedIn && <button
+              type="button"
+              className="ml-3 hover:text-red-500 transition-colors"
+              onClick={() => handleWishlist()}
+            >
+              {isWishlisted ? (
+                <Rb_Icon icon={AiFillHeart} color="red" size={22} />
+              ) : (
+                <Rb_Icon icon={FiHeart} size={22} />
+              )}
+            </button>}
         </div>
       )}
-
-      <Modal
+      <AddToCartModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setActionType("");
-          setSelectedDuration("");
-        }}
-      >
-        <ModalHeader
-          onClose={() => {
-            setIsModalOpen(false);
-            setActionType("");
-            setSelectedDuration("");
-          }}
-        >
-          Choose Purchase Option
-        </ModalHeader>
+        onClose={() => setIsModalOpen(false)}
+        product={product}
+        onProceed={handleAddToCart}
+      />
 
-        <ModalBody>
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-4">
-              <Rb_Radio
-                name="purchaseOption"
-                label="Rent Now"
-                value="rent"
-                checked={actionType === "rent"}
-                onChange={() => setActionType("rent")}
-              />
-              {actionType === "rent" && (
-                <div className="mt-3 ml-7">
-                  <Dropdown
-                    placeholder="Select Rental Duration"
-                    options={rentalOptions}
-                    value={selectedDuration}
-                    onChange={setSelectedDuration}
-                  />
-                </div>
-              )}
-
-              <Rb_Radio
-                name="purchaseOption"
-                label="Purchase Now"
-                value="purchase"
-                checked={actionType === "purchase"}
-                onChange={() => setActionType("purchase")}
-              />
-              {actionType === "purchase" && (
-                <div className="rounded-md border p-3 bg-gray-50">
-                  <p className="text-sm text-gray-500">
-                    Purchase Price
-                  </p>
-
-                  <p className="text-lg font-semibold">
-                    ₹{product.purchasePrice}
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </ModalBody>
-
-        <ModalFooter>
-          <div className="flex justify-end">
-            <Rb_Button
-              disabled={isProceedDisabled}
-              onClick={handleProceed}
-            >
-              Proceed
-            </Rb_Button>
-          </div>
-        </ModalFooter>
-      </Modal>
       <Modal
         isOpen={isRemoveModalOpen}
         onClose={() => setIsRemoveModalOpen(false)}
