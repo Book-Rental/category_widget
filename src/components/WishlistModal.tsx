@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
 import { Product } from "../types/product";
 import { useWishlistMutations } from "../hooks/useWishlistMutations";
 import { FiArrowLeft } from "react-icons/fi";
 import { useWishlistNames } from "../hooks/useWishlistNames";
 import { Modal, ModalHeader, ModalBody, Dropdown, Rb_Button, Rb_Input } from "@rentbook/rentbook-ui-lib";
+import { showToast } from "../utils/toast";
 
 interface WishlistModalProps {
   isOpen: boolean;
@@ -48,23 +48,20 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
         bookId: product._id,
         });
 
-        toast.success(
-        `"${product.name}" added to "${wishlistName}".`
-        );
+        showToast(`"${product.name}" added to "${wishlistName}".`, "success");
 
         onClose();
     } catch (error) {
-        toast.error(
+        showToast(
         error instanceof Error
             ? error.message
-            : "Failed to add to wishlist."
-        );
+            : "Failed to add to wishlist.","error");
     }
   };
 
   const handleCreate = async () => {
     if (!newWishlist.trim()) {
-        toast.error("Please enter wishlist name.");
+        showToast("Please enter wishlist name.");
         return;
     }
 
@@ -78,17 +75,11 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
         bookId: product._id,
         });
 
-        toast.success(
-        `"${product.name}" added to "${newWishlist}".`
-        );
+        showToast(`"${product.name}" added to "${newWishlist}".`,"success");
         onClose();
     } 
     catch (error) {
-        toast.error(
-        error instanceof Error
-            ? error.message
-            : "Failed to create wishlist."
-        );
+        showToast( error instanceof Error? error.message : "Failed to create wishlist.", "error");
     }
   };
 
@@ -111,32 +102,32 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
                 onChange={setSelectedWishlist}
                 />
               
-                <button
-                    type="button"
-                    onClick={() => setIsCreating(true)}
-                    className="self-start font-medium"
-                >
-                    + Create New Wishlist
-                </button>
+                <div className="mt-4 flex items-center justify-between">
+                    <button
+                        type="button"
+                        onClick={() => setIsCreating(true)}
+                        className="font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                        + Create New Wishlist
+                    </button>
 
-                <div className="mt-4 flex justify-end gap-3">
                     <Rb_Button
-                        disabled={ !selectedWishlist || addBookMutation.isPending}
+                        disabled={!selectedWishlist || addBookMutation.isPending}
                         onClick={() => {
                             const wishlist = data?.data.find(
                                 (w) => w._id === selectedWishlist
                             );
                             if (!wishlist) return;
+
                             handleAdd(
                                 wishlist._id,
                                 wishlist.name
                             );
                         }}
-                        >
-                        { addBookMutation.isPending ? "Adding..." : "Add to Wishlist" }
+                    >
+                        {addBookMutation.isPending ? "Adding..." : "Add to Wishlist"}
                     </Rb_Button>
                 </div>
-
             </div>
         ) : (
             <div className="flex flex-col gap-6">
