@@ -5,13 +5,10 @@ import { getProducts } from "../services/productService";
 import useDebounce from "../hooks/useDebounce";
 import { useFilter } from "../context/FilterContext";
 import ProductActions from "./ProductActions";
-import { ProductCard, Pagination } from "@rentbook/rentbook-ui-lib";
+import { ProductCard, Pagination, Rb_LoadingSpinner } from "@rentbook/rentbook-ui-lib";
+import { LibraryBig } from "lucide-react";
 
-interface ProductListingProps {
-  userId: string;
-}
-
-const ProductListing = ({ userId }: ProductListingProps) => {
+const ProductListing = () => {
   const { priceRange, selectedCategories, language, availability, nameOrAuthorSearch } = useFilter();
   const debouncedPriceRange = useDebounce(priceRange, 500);
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,10 +51,10 @@ const ProductListing = ({ userId }: ProductListingProps) => {
   const pageSize = products.length;
   const startItem = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
   const endItem = totalCount === 0 ? 0 : Math.min(startItem + products.length - 1, totalCount);
-  
+
   if (isError) return <div>{(error as Error).message}</div>;
 
-  const redirectToPdp = (id:string) => {
+  const redirectToPdp = (id: string) => {
     window.history.pushState({}, '', `/books-details?bookId=${id}`)
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
@@ -79,28 +76,35 @@ const ProductListing = ({ userId }: ProductListingProps) => {
         </p>
 
         {/* <div className="w-40"></div>   */}
-          <ProductSort
-            value={sortBy}
-            onChange={(value) => {
-              setSortBy(value);
-              setCurrentPage(1);
-            }}
-            disabled={isLoading || isFetching || !products.length}
-          />
-              
+        <ProductSort
+          value={sortBy}
+          onChange={(value) => {
+            setSortBy(value);
+            setCurrentPage(1);
+          }}
+          disabled={isLoading || isFetching || !products.length}
+        />
+
       </div>
 
       <div className="flex-1 flex">
         {(isFetching || isLoading) ? (
-          <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>            
+          // <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
+          //   <div className="h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-blue-600"></div>            
+          // </div>
+          <div className="flex flex-1 w-full min-h-[60vh] items-center justify-center">
+            <Rb_LoadingSpinner />
           </div>
         ) : products.length === 0 ? (
-          <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
-            <p className="text-lg text-gray-500">
-              No products found.
-            </p>
+           <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
+          <div className="text-center">
+            <div className="text-6xl"><LibraryBig className="mx-auto h-16 w-16 text-gray-400" /></div>
+
+            <h3 className="mt-4 text-xl font-semibold">
+              No Books Found.
+            </h3>
           </div>
+        </div>
         ) : (
           <div className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
@@ -114,7 +118,7 @@ const ProductListing = ({ userId }: ProductListingProps) => {
                   priceText={`₹${product.rentalPricePerWeek} / Week`}
                   onProductClick={() => redirectToPdp(product._id)}
                 >
-                  <ProductActions product={product}  userId={userId}/>
+                  <ProductActions product={product} />
                 </ProductCard>
               ))}
             </div>
@@ -128,7 +132,7 @@ const ProductListing = ({ userId }: ProductListingProps) => {
             </div>
           </div>
         )}
-        
+
       </div>
     </div>
   );

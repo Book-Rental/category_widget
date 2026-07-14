@@ -17,9 +17,6 @@ declare global {
 }
 
 const roots: Record<string, Root> = {};
-
-const userData = window.HOST_USER_INFO;
-
 window.renderReactWidget = (config: string) => {
   let options: CategoryWidgetOptions;
 
@@ -44,7 +41,7 @@ window.renderReactWidget = (config: string) => {
   const root = createRoot(container);
 
   root.render(
-        <App userId={userData?._id ?? ""}/>
+        <App/>
   );
 
   roots[options.containerElementId] = root;
