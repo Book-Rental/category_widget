@@ -4,11 +4,7 @@ import Facet from "../components/Facet";
 import ProductListing from "../components/ProductListing";
 import { FilterProvider } from "../context/FilterContext";
 
-interface CategoryPageProps {
-  userId: string;
-}
-
-const CategoryPage = ({ userId }: CategoryPageProps) => {
+const CategoryPage = () => {
   const [showFilter, setShowFilter] = useState(false);
   useEffect(() => {
     const close = () => setShowFilter(false);
@@ -35,7 +31,7 @@ const CategoryPage = ({ userId }: CategoryPageProps) => {
         </div>
 
         <div className="flex-1 p-4 flex">
-          <ProductListing  userId={userId}/>
+          <ProductListing/>
         </div>
       </div>
 

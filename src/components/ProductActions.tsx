@@ -13,10 +13,9 @@ import { showToast } from "../utils/toast";
 
 interface ProductActionsProps {
   product: Product;
-  userId: string
 }
 
-function ProductActions({ product, userId }: ProductActionsProps) {
+function ProductActions({ product}: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
@@ -24,6 +23,7 @@ function ProductActions({ product, userId }: ProductActionsProps) {
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const isLoggedIn = window.HOST_USER_INFO ?? false;
   const [wishlists, setWishlists] = useState<Record<string, string[]>>( window.HOST_WISHLISTS ?? {});
+  const userId = window.HOST_USER_INFO?._id ?? "";
 
   useEffect(() => {
     const handleWishlistStateChanged = (
