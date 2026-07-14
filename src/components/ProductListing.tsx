@@ -22,6 +22,17 @@ const ProductListing = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    debouncedPriceRange,
+    selectedCategories,
+    language,
+    availability,
+    nameOrAuthorSearch,
+    sortBy
+  ]);
+
   const { data, isLoading, isFetching, isError, error } = useQuery({
     queryKey: [
       "products",
@@ -96,15 +107,15 @@ const ProductListing = () => {
             <Rb_LoadingSpinner />
           </div>
         ) : products.length === 0 ? (
-           <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
-          <div className="text-center">
-            <div className="text-6xl"><LibraryBig className="mx-auto h-16 w-16 text-gray-400" /></div>
+          <div className="flex min-h-[60vh] w-full flex-col items-center justify-center gap-4">
+            <div className="text-center">
+              <div className="text-6xl"><LibraryBig className="mx-auto h-16 w-16 text-gray-400" /></div>
 
-            <h3 className="mt-4 text-xl font-semibold">
-              No Books Found.
-            </h3>
+              <h3 className="mt-4 text-xl font-semibold">
+                No Books Found.
+              </h3>
+            </div>
           </div>
-        </div>
         ) : (
           <div className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
@@ -123,13 +134,14 @@ const ProductListing = () => {
               ))}
             </div>
 
-            <div className="flex justify-center mt-8">
+            {totalPages > 1 && (<div className="flex justify-center mt-8">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
               />
-            </div>
+            </div>)}
+
           </div>
         )}
 

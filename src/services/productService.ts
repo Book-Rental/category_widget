@@ -6,7 +6,7 @@ export const getProducts = async (
   priceRange: [number, number],
   selectedCategories: string[],
   language: string,
-   availability: {
+  availability: {
     rent: boolean;
     sale: boolean;
   },
@@ -23,7 +23,7 @@ export const getProducts = async (
     params.append("categoryID", selectedCategories.join(","));
   }
 
-  if (language) {
+  if (language && language !== "All") {
     params.append("language", language);
   }
 
@@ -35,12 +35,15 @@ export const getProducts = async (
     params.append("availableForSale", "true");
   }
 
-  if(nameOrAuthorSearch) {
-    params.append("name", nameOrAuthorSearch)
+  if (nameOrAuthorSearch) {
+    params.append("name", nameOrAuthorSearch);
   }
 
+  const queryString = params
+    .toString()
+    .replace(/%2C/g, ",");
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/book?${params.toString()}`
+    `${import.meta.env.VITE_API_URL}/api/book?${queryString}`
   );
 
   if (!response.ok) {
@@ -48,6 +51,5 @@ export const getProducts = async (
   }
 
   const result = await response.json();
-
   return result.data;
 };
