@@ -63,7 +63,7 @@ const Facet = () => {
     window.dispatchEvent(event);
   }, [isLoading]);
   // if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Failed to load categories.</p>;
+ 
 
   useEffect(() => {
     if (!categories.length) return;
@@ -85,7 +85,7 @@ const Facet = () => {
 
     setSelectedCategories(selectedIds);
   }, [categories, setSelectedCategories]);
-
+ if (isError) return <p>Failed to load categories.</p>;
   return (
     <div className="w-[250px] p-4 flex flex-col gap-6">
 
