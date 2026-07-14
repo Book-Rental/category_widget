@@ -22,7 +22,7 @@ type FilterContextType = {
 
   availability: Availability;
   setAvailability: React.Dispatch<React.SetStateAction<Availability>>;
-  
+
   clearFilters: () => void;
 
   nameOrAuthorSearch: string
@@ -40,22 +40,19 @@ export const FilterProvider = ({
 
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
-  const [language, setLanguage] = useState("");
+  const [language, setLanguage] = useState("All");
 
   const [availability, setAvailability] = useState({
     rent: false,
     sale: false,
   });
 
-  const [nameOrAuthorSearch, setNameOrAuthorSearch] = useState(() => {
-  const params = new URLSearchParams(window.location.search);
-  return params.get("categories") || "";
-});
+  const [nameOrAuthorSearch, setNameOrAuthorSearch] = useState("");
 
   const clearFilters = () => {
     setPriceRange([0, 5000]);
     setSelectedCategories([]);
-    setLanguage("");
+    setLanguage("All");
     setAvailability({
       rent: false,
       sale: false,
