@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-
 import { useFilter } from "../context/FilterContext";
 import { useEffect } from "react";
 import { CiSearch } from "react-icons/ci";
 import { Rb_Text, Checkbox, Dropdown, Rb_Input, PriceRangeSlider } from "@rentbook/rentbook-ui-lib";
 
 const languageOptions = [
-  { label: "All  Languages", value: "All" },
+  { label: "All  Languages", value: "All" },  
   { label: "English", value: "English" },
   { label: "Telugu", value: "Telugu" },
   { label: "Hindi", value: "Hindi" },
@@ -62,12 +61,9 @@ const Facet = () => {
     });
     window.dispatchEvent(event);
   }, [isLoading]);
-  // if (isLoading) return <p>Loading...</p>;
- 
 
   useEffect(() => {
     if (!categories.length) return;
-
     const params = new URLSearchParams(window.location.search);
     const categoryParam = params.get("categories");
 
@@ -85,6 +81,7 @@ const Facet = () => {
 
     setSelectedCategories(selectedIds);
   }, [categories, setSelectedCategories]);
+  
  if (isError) return <p>Failed to load categories.</p>;
   return (
     <div className="w-[250px] p-4 flex flex-col gap-6">
