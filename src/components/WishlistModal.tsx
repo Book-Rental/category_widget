@@ -38,6 +38,18 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !data) return;
+    if (data.data.length === 0) {
+        setIsCreating(true);
+        setSelectedWishlist("");
+        return;
+    }
+
+    setIsCreating(false);
+    setSelectedWishlist(data.data[0]._id);
+    }, [isOpen, data]);
+
    const handleAdd = async (
     wishlistId: string,
     wishlistName: string
@@ -94,7 +106,6 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
       <ModalBody>
         {!isCreating ? (
             <div className="flex flex-col gap-4">
-
                 <Dropdown
                 placeholder="Select Wishlist"
                 options={wishlistOptions}
@@ -143,25 +154,27 @@ function WishlistModal({ isOpen, onClose, product, userId}: WishlistModalProps) 
                         />
                 </div>
                 <div className="flex items-center justify-between mt-4">
-                    <button
-                        type="button"
-                        onClick={() => {
-                        setIsCreating(false);
-                        setNewWishlist("");
-                        }}
-                        className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                    >
-                        <FiArrowLeft size={18} />
-                         Add to existed 
-                    </button>
+                    {wishlistOptions.length > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                            setIsCreating(false);
+                            setNewWishlist("");
+                            }}
+                            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                        >
+                            <FiArrowLeft size={18} />
+                            Add to Existing
+                        </button>
+                    )}
                     <Rb_Button 
-                    disabled={
-                        !newWishlist.trim() ||
-                        createWishlistMutation.isPending ||
-                        addBookMutation.isPending
-                    }
-                    onClick={handleCreate}
-                    > 
+                        disabled={
+                            !newWishlist.trim() ||
+                            createWishlistMutation.isPending ||
+                            addBookMutation.isPending
+                        }
+                        onClick={handleCreate}
+                        > 
                         {createWishlistMutation.isPending ||
                         addBookMutation.isPending
                         ? "Creating..."

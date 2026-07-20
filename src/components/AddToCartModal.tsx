@@ -19,8 +19,6 @@ const AddToCartModal = ({
   const [selectedDuration, setSelectedDuration] = useState("");
   const [actionType, setActionType] = useState<"rent" | "purchase" | "">("");
   const isProceedDisabled = actionType === "" ? true : actionType === "rent" ? !selectedDuration : false;
-  
-
   const rentalOptions = [
     {
       label: `1 Day - ₹${product.rentalPricePerDay}`,
@@ -43,19 +41,16 @@ const AddToCartModal = ({
   };
 
   const handleProceed = async () => {
-    if (!actionType) return;
-    if (!selectedDuration) return;
-
+    if (!actionType || !selectedDuration) return;
+    setActionType("");
+    setSelectedDuration("");
+    onClose();
     await onProceed({
         bookId: product._id,
         quantity: 1,
         pricingMode: "rent",
         rentalPeriod: selectedDuration as "day" | "week" | "month",
     });
-
-    setActionType("");
-    setSelectedDuration("");
-    onClose();
     };
 
   return (
