@@ -1,17 +1,10 @@
 import { ProductResponse } from "../types/product";
 
 export const getProducts = async (
-  page: number,
-  sortBy: string,
-  priceRange: [number, number],
-  selectedCategories: string[],
-  language: string,
-  availability: {
-    rent: boolean;
-    sale: boolean;
-  },
-  nameOrAuthorSearch: string
-): Promise<ProductResponse> => {
+page: number, sortBy: string, priceRange: [number, number], selectedCategories: string[], language: string, availability: {
+  rent: boolean;
+  sale: boolean;
+}, nameOrAuthorSearch: string, search: string): Promise<ProductResponse> => {
   const params = new URLSearchParams();
 
   params.append("page", page.toString());
@@ -37,6 +30,10 @@ export const getProducts = async (
 
   if (nameOrAuthorSearch) {
     params.append("name", nameOrAuthorSearch);
+  }
+
+  if (search) {
+    params.append("search", search);
   }
 
   const queryString = params

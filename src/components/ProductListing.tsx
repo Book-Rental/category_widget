@@ -8,11 +8,36 @@ import ProductActions from "./ProductActions";
 import { ProductCard, Pagination, Rb_LoadingSpinner } from "@rentbook/rentbook-ui-lib";
 import { LibraryBig } from "lucide-react";
 
+
 const ProductListing = () => {
-  const { priceRange, selectedCategories, language, availability, nameOrAuthorSearch } = useFilter();
+  const { priceRange, selectedCategories, language, availability, nameOrAuthorSearch, search, setSearch } = useFilter();
   const debouncedPriceRange = useDebounce(priceRange, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("nameAToZ");
+  const debouncedAuthorSearch = useDebounce(nameOrAuthorSearch, 500);
+
+  useEffect(() => {
+    const updateSearch = () => {
+      const params = new URLSearchParams(window.location.search);
+      const name = params.get("search") || "";
+
+      console.log("URL Search:", name);
+
+      setSearch(name);
+    };
+
+    updateSearch();
+
+    window.addEventListener("popstate", updateSearch);
+
+    return () => {
+      window.removeEventListener("popstate", updateSearch);
+    };
+  }, [setSearch]);
+
+  useEffect(() => {
+    console.log("Context Search:", search);
+  }, [search]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -29,8 +54,9 @@ const ProductListing = () => {
     selectedCategories,
     language,
     availability,
-    nameOrAuthorSearch,
-    sortBy
+    debouncedAuthorSearch,
+    sortBy,
+    search
   ]);
 
   const { data, isLoading, isFetching, isError, error } = useQuery({
@@ -42,7 +68,8 @@ const ProductListing = () => {
       selectedCategories,
       language,
       availability,
-      nameOrAuthorSearch
+      debouncedAuthorSearch,
+      search
     ],
     queryFn: () =>
       getProducts(
@@ -52,7 +79,8 @@ const ProductListing = () => {
         selectedCategories,
         language,
         availability,
-        nameOrAuthorSearch
+        debouncedAuthorSearch,
+        search
       ),
   });
 
@@ -66,7 +94,7 @@ const ProductListing = () => {
   if (isError) return <div>{(error as Error).message}</div>;
 
   const redirectToPdp = (id: string) => {
-    window.history.pushState({}, '', `/books-details?bookId=${id}`)
+    window.history.pushState({}, '',` /books-details?bookId=${id}`)
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
 

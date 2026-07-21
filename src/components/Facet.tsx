@@ -50,11 +50,26 @@ const Facet = () => {
   });
 
   const handleAuthorNameSearch = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setNameOrAuthorSearch(e.target.value);
-  };
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const value = e.target.value;
 
+  setNameOrAuthorSearch(value);
+
+  const params = new URLSearchParams(window.location.search);
+
+  if (value.trim()) {
+    params.set("name", value.trim());
+  } else {
+    params.delete("name");
+  }
+
+  window.history.replaceState(
+    {},
+    "",
+    `${window.location.pathname}?${params.toString()}`
+  );
+};
   useEffect(() => {
     const event = new CustomEvent("widget-loading-status", {
       detail: isLoading

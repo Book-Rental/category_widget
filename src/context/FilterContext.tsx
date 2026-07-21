@@ -27,6 +27,9 @@ type FilterContextType = {
 
   nameOrAuthorSearch: string
   setNameOrAuthorSearch: React.Dispatch<React.SetStateAction<string>>;
+
+  search: string
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const FilterContext = createContext<FilterContextType | null>(null);
@@ -48,7 +51,8 @@ export const FilterProvider = ({
   });
 
   const [nameOrAuthorSearch, setNameOrAuthorSearch] = useState("");
-
+  const [search, setSearch] = useState("");
+  
   const clearFilters = () => {
     setPriceRange([0, 5000]);
     setSelectedCategories([]);
@@ -58,6 +62,7 @@ export const FilterProvider = ({
       sale: false,
     });
     setNameOrAuthorSearch('')
+    setSearch('')
   };
 
   return (
@@ -73,7 +78,9 @@ export const FilterProvider = ({
         setAvailability,
         clearFilters,
         nameOrAuthorSearch,
-        setNameOrAuthorSearch
+        setNameOrAuthorSearch,
+        search,
+        setSearch
       }}
     >
       {children}
