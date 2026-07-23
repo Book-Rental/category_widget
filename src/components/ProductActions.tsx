@@ -129,34 +129,34 @@ function ProductActions({ product}: ProductActionsProps) {
   }
   return (
     <>
-      {isLoggedIn && (
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <Rb_Button
-              disabled={isAddingToCart}
-              onClick={() => {
-                if (addedType || isAddingToCart) {
-                  return;
-                }
-                setIsModalOpen(true);
-              }}
-            >
-              {isAddingToCart ? "Adding..." : addedType ? "Go to Cart" : "Add to Cart"}
-            </Rb_Button>
-          </div>
-            {isLoggedIn && <button
-              type="button"
-              className="ml-3 hover:text-red-500 transition-colors"
-              onClick={() => handleWishlist()}
-            >
-              {isWishlisted ? (
-                <Rb_Icon icon={AiFillHeart} color="red" size={22} />
-              ) : (
-                <Rb_Icon icon={FiHeart} size={22} />
-              )}
-            </button>}
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <Rb_Button
+            disabled={isAddingToCart}
+            onClick={() => {
+              if (addedType || isAddingToCart) {
+                return;
+              }
+              setIsModalOpen(true);
+            }}
+          >
+            {isAddingToCart ? "Adding..." : addedType ? "Go to Cart" : "Add to Cart"}
+          </Rb_Button>
         </div>
-      )}
+        {isLoggedIn && (
+          <button
+            type="button"
+            className="ml-3 hover:text-red-500 transition-colors"
+            onClick={() => handleWishlist()}
+          >
+            {isWishlisted ? (
+              <Rb_Icon icon={AiFillHeart} color="red" size={22} />
+            ) : (
+              <Rb_Icon icon={FiHeart} size={22} />
+            )}
+          </button>
+        )}
+      </div>
       <AddToCartModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
