@@ -24,6 +24,7 @@ export const addBookToWishlist = async (
     `${API_URL}/api/wishlist/add`,
     {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
@@ -51,6 +52,7 @@ export const createWishlistGroup = async (
     `${API_URL}/api/wishlist/group`,
     {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
