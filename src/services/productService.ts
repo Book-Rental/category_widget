@@ -40,7 +40,11 @@ page: number, sortBy: string, priceRange: [number, number], selectedCategories: 
     .toString()
     .replace(/%2C/g, ",");
   const response = await fetch(
-    `${import.meta.env.VITE_API_URL}/api/book?${queryString}`
+    `${import.meta.env.VITE_API_URL}/api/book?${queryString}`,
+     {
+        method: "GET",
+        credentials: "include",
+      }
   );
 
   if (!response.ok) {

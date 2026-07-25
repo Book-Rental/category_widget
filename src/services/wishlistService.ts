@@ -6,7 +6,11 @@ export const getWishlistNames = async (
   userId: string
 ): Promise<WishlistResponse> => {
   const response = await fetch(
-    `${API_URL}/api/wishlist/wishlistName/${userId}`
+    `${API_URL}/api/wishlist/wishlistName/${userId}`,
+     {
+        method: "GET",
+        credentials: "include",
+      }
   );
 
   if (!response.ok) {
