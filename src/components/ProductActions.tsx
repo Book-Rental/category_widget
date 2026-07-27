@@ -134,7 +134,6 @@ function ProductActions({ product}: ProductActionsProps) {
   }
   return (
     <>
-      {isLoggedIn && (
         <div className="flex items-center justify-between">
           <div className="flex-1">
             <Rb_Button
@@ -165,7 +164,6 @@ function ProductActions({ product}: ProductActionsProps) {
               )}
             </button>}
         </div>
-      )}
       <AddToCartModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
