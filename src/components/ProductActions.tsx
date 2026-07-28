@@ -1,29 +1,47 @@
 import { useEffect, useState } from "react";
 import { FiHeart } from "react-icons/fi";
-import { Product } from "../types/product";
-import WishlistModal from "./WishlistModal";
-import { Modal, ModalBody, ModalFooter, ModalHeader, Rb_Button, Rb_Icon } from "@rentbook/rentbook-ui-lib";
 import { AiFillHeart } from "react-icons/ai";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+
+import { Product } from "../types/product";
+import WishlistModal from "./WishlistModal";
 import AddToCartModal from "./AddToCartModal";
+
+import {
+  Modal,
+  ModalBody,
+  ModalFooter,
+  ModalHeader,
+  Rb_Button,
+  Rb_Icon,
+} from "@rentbook/rentbook-ui-lib";
+
 import { addToCart } from "../services/cartService";
 import { AddToCartPayload } from "../types/cart";
 import { showToast } from "../utils/toast";
-
 
 interface ProductActionsProps {
   product: Product;
 }
 
-function ProductActions({ product}: ProductActionsProps) {
+function ProductActions({ product }: ProductActionsProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
-  const [addedType, setAddedType] = useState<"rent" | "purchase" | null>(null);
   const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const isLoggedIn = window.HOST_USER_INFO ?? false;
-  const [wishlists, setWishlists] = useState<Record<string, string[]>>( window.HOST_WISHLISTS ?? {});
+
+  const isLoggedIn = !!window.HOST_USER_INFO;
   const userId = window.HOST_USER_INFO?._id ?? "";
+
+  const [wishlists, setWishlists] = useState<Record<string, string[]>>(
+    window.HOST_WISHLISTS ?? {}
+  );
+
+  const [cartItems, setCartItems] = useState<string[]>(
+    window.HOST_CART ?? []
+  );
+
+  const isInCart = cartItems.includes(product._id);
 
   const redirectToCart = () => {
     window.history.pushState({}, "", "/cart");
@@ -31,10 +49,29 @@ function ProductActions({ product}: ProductActionsProps) {
   };
 
   useEffect(() => {
-    const handleWishlistStateChanged = (
-      event: Event
-    ) => {
-      const customEvent = event as CustomEvent<Record<string, string[]>>;
+    const handleCartStateChanged = (event: Event) => {
+      const customEvent = event as CustomEvent<string[]>;
+
+      setCartItems(customEvent.detail ?? []);
+    };
+
+    window.addEventListener(
+      "cart-state-changed",
+      handleCartStateChanged
+    );
+
+    return () => {
+      window.removeEventListener(
+        "cart-state-changed",
+        handleCartStateChanged
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleWishlistStateChanged = (event: Event) => {
+      const customEvent =
+        event as CustomEvent<Record<string, string[]>>;
 
       setWishlists(customEvent.detail);
     };
@@ -65,25 +102,36 @@ function ProductActions({ product}: ProductActionsProps) {
       return false;
     });
 
-    const handleAddToCart = async (payload: AddToCartPayload) => {
-      setIsAddingToCart(true);
+  const handleAddToCart = async (payload: AddToCartPayload) => {
+    setIsAddingToCart(true);
 
-      try {
-        await addToCart(payload);
-        showToast("Book added to rental cart.", "success");
-        setAddedType("rent");
-      } catch (error) {
-        showToast(
-          error instanceof Error
-            ? error.message
-            : "Failed to add book to cart.",
-          "error"
-        );
-      } finally {
-        setIsAddingToCart(false);
-      }
-    };
+    try {
+      await addToCart(payload);
 
+      showToast("Book added to rental cart.", "success");
+
+      const updatedCart = [
+        ...(window.HOST_CART ?? []),
+        product._id,
+      ];
+
+      window.HOST_CART = updatedCart;
+
+      setCartItems(updatedCart);
+
+      setIsModalOpen(false);
+
+    } catch (error) {
+      showToast(
+        error instanceof Error
+          ? error.message
+          : "Failed to add book to cart.",
+        "error"
+      );
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   const queryClient = useQueryClient();
 
@@ -113,15 +161,16 @@ function ProductActions({ product}: ProductActionsProps) {
       queryClient.invalidateQueries({
         queryKey: ["wishlistNames", userId],
       });
+
       window.dispatchEvent(new CustomEvent("wishlist-refresh"));
 
-
       setIsRemoveModalOpen(false);
+
       showToast("Book removed from wishlist.", "success");
     },
 
     onError: () => {
-      showToast("Failed to remove book.", "success");
+      showToast("Failed to remove book.", "error");
     },
   });
 
@@ -131,39 +180,59 @@ function ProductActions({ product}: ProductActionsProps) {
     } else {
       setIsWishlistOpen(true);
     }
-  }
+  };
+
+  const handleCartClick = () => {
+    if (isAddingToCart) {
+      return;
+    }
+
+    if (isInCart) {
+      redirectToCart();
+      return;
+    }
+
+    setIsModalOpen(true);
+  };
+
   return (
     <>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <Rb_Button
-              disabled={isAddingToCart}
-              onClick={() => {
-                if (isAddingToCart) {
-                  return;
-                }
-                if (addedType) {
-                  redirectToCart();
-                  return;
-                }
-                setIsModalOpen(true);
-              }}
-            >
-              {isAddingToCart ? "Adding..." : addedType ? "View Cart" : "Add to Cart"}
-            </Rb_Button>
-          </div>
-            {isLoggedIn && <button
-              type="button"
-              className="ml-3 hover:text-red-500 transition-colors"
-              onClick={() => handleWishlist()}
-            >
-              {isWishlisted ? (
-                <Rb_Icon icon={AiFillHeart} color="red" size={22} />
-              ) : (
-                <Rb_Icon icon={FiHeart} size={22} />
-              )}
-            </button>}
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <Rb_Button
+            disabled={isAddingToCart}
+            onClick={handleCartClick}
+          >
+            {isAddingToCart
+              ? "Adding..."
+              : isInCart
+                ? "View Cart"
+                : "Add to Cart"}
+          </Rb_Button>
         </div>
+
+        {isLoggedIn && (
+          <button
+            type="button"
+            className="ml-3 hover:text-red-500 transition-colors"
+            onClick={handleWishlist}
+          >
+            {isWishlisted ? (
+              <Rb_Icon
+                icon={AiFillHeart}
+                color="red"
+                size={22}
+              />
+            ) : (
+              <Rb_Icon
+                icon={FiHeart}
+                size={22}
+              />
+            )}
+          </button>
+        )}
+      </div>
+
       <AddToCartModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
@@ -201,7 +270,9 @@ function ProductActions({ product}: ProductActionsProps) {
               disabled={deleteBook.isPending}
               onClick={() => deleteBook.mutate()}
             >
-              {deleteBook.isPending ? "Removing..." : "Remove"}
+              {deleteBook.isPending
+                ? "Removing..."
+                : "Remove"}
             </Rb_Button>
           </div>
         </ModalFooter>

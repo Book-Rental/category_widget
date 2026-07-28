@@ -13,7 +13,7 @@ declare global {
     // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     HOST_USER_INFO: any;
     HOST_WISHLISTS: Record<string, string[]>;
-    HOST_CART: Record<string, string[]>;
+    HOST_CART: string[];
   }
 }
 
