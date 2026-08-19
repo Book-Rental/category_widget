@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useFilter } from "../context/FilterContext";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { CiSearch } from "react-icons/ci";
 import { Rb_Text, Checkbox, Dropdown, Rb_Input, PriceRangeSlider } from "@rentbook/rentbook-ui-lib";
 
@@ -48,28 +48,28 @@ const Facet = () => {
       return result.data ?? [];
     },
   });
-
+  
   const handleAuthorNameSearch = (
-  e: React.ChangeEvent<HTMLInputElement>
-) => {
-  const value = e.target.value;
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
 
-  setNameOrAuthorSearch(value);
+    setNameOrAuthorSearch(value);
 
-  const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.search);
 
-  if (value.trim()) {
-    params.set("name", value.trim());
-  } else {
-    params.delete("name");
-  }
+    if (value.trim()) {
+      params.set("name", value.trim());
+    } else {
+      params.delete("name");
+    }
 
-  window.history.replaceState(
-    {},
-    "",
-    `${window.location.pathname}?${params.toString()}`
-  );
-};
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${params.toString()}`
+    );
+  };
   useEffect(() => {
     const event = new CustomEvent("widget-loading-status", {
       detail: isLoading
@@ -77,25 +77,61 @@ const Facet = () => {
     window.dispatchEvent(event);
   }, [isLoading]);
 
-  useEffect(() => {
-    if (!categories.length) return;
-    const params = new URLSearchParams(window.location.search);
-    const categoryParam = params.get("categories");
+  const slugify = (name: string) =>
+    name
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, "and")
+      .replace(/'/g, '')
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
 
-    if (!categoryParam) return;
 
+  const hasInitialized = useRef(false);
+
+useEffect(() => {
+  if (!categories.length) return;
+  const params = new URLSearchParams(window.location.search);
+  const categoryParam = params.get("categories");
+
+  if (categoryParam) {
     const categoryNames = categoryParam
       .split(",")
       .map(name => name.trim().toLowerCase());
 
     const selectedIds = categories
-      .filter(category =>
-        categoryNames.includes(category.name.toLowerCase())
-      )
+      .filter(category => categoryNames.includes(slugify(category.name)))
       .map(category => category._id);
 
     setSelectedCategories(selectedIds);
-  }, [categories, setSelectedCategories]);
+  }
+
+  hasInitialized.current = true;
+}, [categories, setSelectedCategories]);
+
+useEffect(() => {
+  if (!categories.length) return;
+  if (!hasInitialized.current) return;   // <-- guard added
+
+  const params = new URLSearchParams(window.location.search);
+
+  if (selectedCategories.length > 0) {
+    const slugs = categories
+      .filter(c => selectedCategories.includes(c._id))
+      .map(c => slugify(c.name));
+    params.set("categories", slugs.join(","));
+  } else {
+    params.delete("categories");
+  }
+
+  const queryString = params.toString();
+  const newUrl = queryString
+    ? `${window.location.pathname}?${queryString}`
+    : window.location.pathname;
+
+  window.history.replaceState({}, "", newUrl);
+}, [selectedCategories, categories]);
+
   
  if (isError) return <p>Failed to load categories.</p>;
   return (
@@ -108,7 +144,11 @@ const Facet = () => {
         <Rb_Text
           variant="p"
           className="text-blue-600 cursor-pointer"
-          onClick={clearFilters}
+          onClick={() => {
+            clearFilters();
+            window.history.replaceState({}, "", window.location.pathname);
+            window.dispatchEvent(new PopStateEvent("popstate"));
+          }}
         >
           Clear all
         </Rb_Text>
