@@ -141,6 +141,7 @@ function ProductActions({ product }: ProductActionsProps) {
         `${import.meta.env.VITE_API_URL}/api/wishList/delete/${product._id}`,
         {
           method: "DELETE",
+          credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
