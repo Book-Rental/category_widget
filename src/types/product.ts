@@ -16,6 +16,7 @@ export interface Product {
   rentalPricePerWeek: number;
   rentalPricePerMonth: number;
   securityDeposit: number;
+  sellerId:string;
 }
 
 export interface ProductResponse {
