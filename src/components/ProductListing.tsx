@@ -11,6 +11,7 @@ import { LibraryBig } from "lucide-react";
 
 const ProductListing = () => {
   const { priceRange, selectedCategories, language, availability, nameOrAuthorSearch, search, setSearch } = useFilter();
+  const currentUserId = window.HOST_USER_INFO?._id ?? "";
   const debouncedPriceRange = useDebounce(priceRange, 500);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy, setSortBy] = useState("nameAToZ");
@@ -97,7 +98,9 @@ const ProductListing = () => {
     window.history.pushState({}, '',` /books-details?bookId=${id}`)
     window.dispatchEvent(new PopStateEvent('popstate'));
   }
-
+    console.log('data',products)
+    console.log("HOST_USER_INFO", window.HOST_USER_INFO);
+    
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-6 flex flex-col ">
 
@@ -147,19 +150,30 @@ const ProductListing = () => {
         ) : (
           <div className="w-full">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
-              {products.map((product) => (
-                <ProductCard
-                  key={product._id}
-                  imageUrl={product.coverImage || "https://picsum.photos/250/350"}
-                  title={product.name}
-                  author={product.author}
-                  rating={4.5}
-                  priceText={`₹${product.rentalPricePerWeek} / Week`}
-                  onProductClick={() => redirectToPdp(product._id)}
-                >
-                  <ProductActions product={product} />
-                </ProductCard>
-              ))}
+              {products.map((product) => {
+                const isMyBook = !!currentUserId && product.sellerId === currentUserId;
+                console.log("compare", product.sellerId, currentUserId, product.sellerId === currentUserId);
+                return (
+                  <div key={product._id} className="relative w-full max-w-[260px]">
+                    {isMyBook && (
+                      <span className="absolute top-2 right-2 z-10 rounded-full bg-black/80 px-2 py-1 text-xs font-medium text-white">
+                        My Book
+                      </span>
+                    )}
+
+                    <ProductCard
+                      imageUrl={product.coverImage || "https://picsum.photos/250/350"}
+                      title={product.name}
+                      author={product.author}
+                      rating={4.5}
+                      priceText={`₹${product.rentalPricePerWeek} / Week`}
+                      onProductClick={() => redirectToPdp(product._id)}
+                    >
+                      <ProductActions product={product} />
+                    </ProductCard>
+                  </div>
+                );
+              })}
             </div>
 
             {totalPages > 1 && (<div className="flex justify-center mt-8">
